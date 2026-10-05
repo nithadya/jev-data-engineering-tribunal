@@ -1,0 +1,138 @@
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║  settings.yaml — Application Configuration (YAML Config)                  ║
+# ║  ─────────────────────────────────────────────────────────────────────────  ║
+# ║                                                                            ║
+# ║  This file is the MAIN CONFIGURATION file for the project.                 ║
+# ║  API keys, model names, server settings, and scenario presets              ║
+# ║  are all configured here.                                                 ║
+# ║                                                                            ║
+# ║  STUDENT — READ THIS FIRST:                                                ║
+# ║  Review this file to understand the underlying services, models, and URLs  ║
+# ║  used in this project. Instead of hardcoding values, we load them from     ║
+# ║  settings.yaml — adhering to production best practices.                    ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+
+# ── Server Settings ──────────────────────────────────────────────────────────
+# Basic configuration for the FastAPI server.
+# port: Port number for the uvicorn server (default: 8001)
+# host: Network interface to bind (0.0.0.0 = all interfaces, 127.0.0.1 = localhost only)
+# reload: Development mode — automatically reloads when code changes
+server:
+  port: 8001
+  host: "127.0.0.1"
+  reload: true
+
+# ── OpenRouter API Settings ──────────────────────────────────────────────────
+# Connects to Jev (TypeSafe) and DeepSeek models via OpenRouter.
+#
+# api_key_env_var: The environment variable name in .env (OPENROUTER_API_KEY).
+#   For security, API keys are never hardcoded in YAML files —
+#   they are loaded securely from environment variables.
+#
+# decisions_url: Jev Decisions API endpoint (evaluates noul/choice/score questions).
+# chat_url: OpenRouter Chat Completions API endpoint (generates mentor explanations).
+openrouter:
+  api_key_env_var: "OPENROUTER_API_KEY"
+  decisions_url: "https://openrouter.ai/api/alpha/decisions"
+  chat_url: "https://openrouter.ai/api/v1/chat/completions"
+  http_referer: "https://de-mentor-demo.local"
+  app_title: "DE Mentor Jev Demo"
+
+# ── AI Models ────────────────────────────────────────────────────────────────
+# jev_model: TypeSafe AI's "System One" structured decision model.
+#   - Does not generate prose — produces direct typed decisions (noul, choice, score).
+#   - Sub-second (~200ms) latency — ideal for real-time data pipeline automation.
+#
+# chat_model: Generative LLM used for human-readable explanations.
+#   - DeepSeek V4.1 Flash — fast, cost-effective, high quality responses.
+#   - Explains the rationale behind Jev's decisions to students.
+models:
+  jev_model: "~typesafe/jev-latest"
+  chat_model: "deepseek/deepseek-v4.1-flash"
+  chat_max_tokens: 512
+
+# ── Mentor System Prompt ─────────────────────────────────────────────────────
+# System prompt for mentor explanations. Defines the persona and instructional
+# guidelines followed when explaining data engineering concepts to students.
+mentor:
+  system_prompt: >
+    You are an expert data engineering and data science mentor. Give concise,
+    practical answers for a student. Use bullet points and code snippets.
+    End with one actionable next step.
+
+# ── Scenario Presets ─────────────────────────────────────────────────────────
+# Realistic sample datasets loaded when clicking preset buttons in the UI.
+# Helps students explore real-world production situations with Jev.
+presets:
+  data_quality:
+    good:
+      column: "transaction_amount"
+      null_pct: 0.1
+      samples: "102.50, 89.00, 230.75, 45.00, 178.20, 92.10, 310.00"
+      description: "Payment amounts in USD, validated at point of sale"
+    nulls:
+      column: "email_address"
+      null_pct: 68
+      samples: "null, null, user@example.com, null, null, test@test.com, null"
+      description: "Optional email from signup form"
+    mixed:
+      column: "product_code"
+      null_pct: 5
+      samples: "SKU-1234, 5678, PROD_99, 12, SKU-0001, null, 789abc, 42"
+      description: "Product identifier from legacy system"
+    outlier:
+      column: "page_load_ms"
+      null_pct: 2
+      samples: "210, 185, 320, 99999, 195, 208, -1, 230, 9999999, 201"
+      description: "Page load time in milliseconds from RUM"
+
+  pipeline_router:
+    sales:
+      dataset: "Daily sales table: 500M rows, columns: order_id, customer_id, sku, qty, price, store_id, created_at"
+      output: "Data cleaned and deduplicated. 487M rows remain, timestamps normalised to UTC."
+      goal: "Monthly revenue breakdown by store and product category for finance reporting"
+    user:
+      dataset: "User profiles: 8M users, columns: user_id, name, email, signup_date, country, plan_tier, last_active"
+      output: "Null emails dropped, country codes normalised, duplicate user_ids resolved."
+      goal: "Segment users by engagement tier for personalised email campaigns"
+    logs:
+      dataset: "Application logs: 50GB/day, columns: timestamp, level, service, message, trace_id, user_id, latency_ms"
+      output: "Logs parsed from raw JSON, timestamp indexed, PII redacted."
+      goal: "Count error rates per service per hour for SLO dashboard"
+
+  anomaly_triage:
+    spike:
+      metric: "daily_revenue_usd"
+      expected: 125000
+      actual: 380000
+      context: "No promotional events, Black Friday is 3 months away"
+    missing:
+      metric: "hourly_sensor_readings"
+      expected: 3600
+      actual: 0
+      context: "IoT temperature sensors in warehouse, power outage reported"
+    normal:
+      metric: "api_response_time_ms"
+      expected: 180
+      actual: 195
+      context: "Slight uptick, Monday morning traffic increase"
+
+  schema_advisor:
+    events:
+      table: "user_events"
+      rows: 500000000
+      columns: '[{"name":"event_id","dtype":"string","nullable":false},{"name":"user_id","dtype":"string","nullable":false},{"name":"event_type","dtype":"string","nullable":false},{"name":"event_time","dtype":"timestamp","nullable":false},{"name":"properties","dtype":"json","nullable":true},{"name":"region","dtype":"string","nullable":true}]'
+    dim:
+      table: "dim_product"
+      rows: 250000
+      columns: '[{"name":"product_id","dtype":"string","nullable":false},{"name":"sku","dtype":"string","nullable":false},{"name":"name","dtype":"string","nullable":false},{"name":"category","dtype":"string","nullable":true},{"name":"brand","dtype":"string","nullable":true},{"name":"price_usd","dtype":"decimal","nullable":false}]'
+    fact:
+      table: "fact_orders"
+      rows: 2000000000
+      columns: '[{"name":"order_id","dtype":"string","nullable":false},{"name":"customer_id","dtype":"string","nullable":false},{"name":"order_date","dtype":"date","nullable":false},{"name":"sku","dtype":"string","nullable":false},{"name":"qty","dtype":"int","nullable":false},{"name":"unit_price","dtype":"decimal","nullable":false},{"name":"discount","dtype":"decimal","nullable":true},{"name":"region","dtype":"string","nullable":false}]'
+
+  mentor_chat:
+    partitioning: "What are the best partitioning strategies for large tables in a data lake?"
+    spark: "When should I use PySpark instead of Pandas in a data pipeline?"
+    dbt: "What is dbt and how does it fit into a modern data stack?"
+    delta: "Explain Delta Lake basics and when I should use it over plain Parquet."

@@ -1,0 +1,198 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1080" viewBox="0 0 1600 1080" role="img" aria-labelledby="title desc">
+  <title id="title">DE Mentor × Jev application architecture</title>
+  <desc id="desc">Architecture diagram showing browser UI, FastAPI backend, Jev decision engine, DeepSeek mentor model, OpenRouter APIs, configuration, and response flow.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fdfbf6"/>
+      <stop offset="1" stop-color="#f3ede0"/>
+    </linearGradient>
+    <linearGradient id="hero" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#221a12"/>
+      <stop offset="1" stop-color="#4a3520"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#d5ae52"/>
+      <stop offset="1" stop-color="#9b7327"/>
+    </linearGradient>
+    <linearGradient id="jev" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#eaf1fb"/>
+      <stop offset="1" stop-color="#d8e5f7"/>
+    </linearGradient>
+    <linearGradient id="llm" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f9eaf1"/>
+      <stop offset="1" stop-color="#efd8e3"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#362a1a" flood-opacity="0.14"/>
+    </filter>
+    <marker id="arrowGold" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M1,1 L11,6 L1,11 Z" fill="#a47c2e"/>
+    </marker>
+    <marker id="arrowBlue" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M1,1 L11,6 L1,11 Z" fill="#365d8d"/>
+    </marker>
+    <marker id="arrowPurple" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M1,1 L11,6 L1,11 Z" fill="#7a3248"/>
+    </marker>
+    <pattern id="dots" width="26" height="26" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.2" fill="#b89038" opacity="0.17"/>
+    </pattern>
+    <style>
+      text { font-family: Inter, "Segoe UI", Arial, sans-serif; fill: #241d15; }
+      .serif { font-family: Georgia, "Times New Roman", serif; }
+      .small { font-size: 16px; fill: #675c4c; }
+      .micro { font-size: 14px; fill: #756957; }
+      .label { font-size: 14px; font-weight: 700; letter-spacing: 1.5px; }
+      .title { font-size: 31px; font-weight: 750; }
+      .cardTitle { font-size: 22px; font-weight: 750; }
+      .body { font-size: 16px; fill: #52483a; }
+      .mono { font-family: Consolas, "Courier New", monospace; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="1080" fill="url(#bg)"/>
+  <rect width="1600" height="1080" fill="url(#dots)"/>
+  <rect x="0" y="0" width="1600" height="8" fill="url(#gold)"/>
+
+  <!-- Header -->
+  <rect x="50" y="38" width="1500" height="116" rx="22" fill="url(#hero)" filter="url(#shadow)"/>
+  <circle cx="108" cy="96" r="31" fill="url(#gold)"/>
+  <path d="M91 111h34M96 105h24M100 103V83h16v20M96 83h24l-12-10z" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="158" y="87" class="serif" font-size="36" font-weight="700" style="fill:#ffffff">DE Mentor × Jev</text>
+  <text x="158" y="120" font-size="18" style="fill:#dbcba9">Data Engineering Decisions, Evaluated by TypeSafe AI</text>
+  <text x="1490" y="85" text-anchor="end" class="label" style="fill:#e2c980">APPLICATION ARCHITECTURE</text>
+  <text x="1490" y="117" text-anchor="end" font-size="17" style="fill:#d9d0c0">FastAPI · OpenRouter · Jev · DeepSeek</text>
+
+  <!-- Layer labels -->
+  <text x="60" y="207" class="label" fill="#916d1f">01 · EXPERIENCE LAYER</text>
+  <line x1="60" y1="219" x2="1540" y2="219" stroke="#cdbd9c" stroke-width="1"/>
+
+  <!-- Browser -->
+  <g filter="url(#shadow)">
+    <rect x="72" y="243" width="430" height="245" rx="20" fill="#fff" stroke="#d8cfbf" stroke-width="2"/>
+    <rect x="72" y="243" width="430" height="48" rx="20" fill="#f2ede4"/>
+    <rect x="72" y="271" width="430" height="20" fill="#f2ede4"/>
+    <circle cx="101" cy="267" r="6" fill="#b8523c"/><circle cx="122" cy="267" r="6" fill="#d0a23f"/><circle cx="143" cy="267" r="6" fill="#557a4b"/>
+    <rect x="171" y="257" width="283" height="20" rx="10" fill="#fff" stroke="#ddd4c6"/>
+    <text x="312" y="272" text-anchor="middle" class="micro mono">http://127.0.0.1:8001</text>
+  </g>
+  <text x="102" y="328" class="cardTitle">Roman Tribunal Web UI</text>
+  <text x="102" y="355" class="small">Single-page application · HTML / CSS / JavaScript</text>
+  <g>
+    <rect x="102" y="382" width="174" height="36" rx="9" fill="#f5f1e8" stroke="#ddd3c2"/>
+    <text x="189" y="405" text-anchor="middle" font-size="15" font-weight="650">Scenario Forms</text>
+    <rect x="292" y="382" width="178" height="36" rx="9" fill="#f5f1e8" stroke="#ddd3c2"/>
+    <text x="381" y="405" text-anchor="middle" font-size="15" font-weight="650">Live CSV Profiler</text>
+    <rect x="102" y="430" width="174" height="36" rx="9" fill="#f5f1e8" stroke="#ddd3c2"/>
+    <text x="189" y="453" text-anchor="middle" font-size="15" font-weight="650">Jev vs LLM Arena</text>
+    <rect x="292" y="430" width="178" height="36" rx="9" fill="#f5f1e8" stroke="#ddd3c2"/>
+    <text x="381" y="453" text-anchor="middle" font-size="15" font-weight="650">Mentor Chat</text>
+  </g>
+
+  <!-- API/backend -->
+  <g filter="url(#shadow)">
+    <rect x="642" y="243" width="520" height="245" rx="20" fill="#fff" stroke="#d8cfbf" stroke-width="2"/>
+    <rect x="642" y="243" width="10" height="245" rx="5" fill="#b89038"/>
+  </g>
+  <text x="680" y="283" class="label" fill="#916d1f">FASTAPI APPLICATION</text>
+  <text x="680" y="318" class="cardTitle">HTTP Entry &amp; Scenario Orchestration</text>
+  <rect x="680" y="342" width="205" height="54" rx="11" fill="#faf7f0" stroke="#ddd1bc"/>
+  <text x="698" y="366" font-size="16" font-weight="700">server.py</text>
+  <text x="698" y="386" class="micro">static mount · /health</text>
+  <rect x="904" y="342" width="222" height="54" rx="11" fill="#faf7f0" stroke="#ddd1bc"/>
+  <text x="922" y="366" font-size="16" font-weight="700">routes/scenarios.py</text>
+  <text x="922" y="386" class="micro">business logic · responses</text>
+  <rect x="680" y="414" width="205" height="50" rx="11" fill="#faf7f0" stroke="#ddd1bc"/>
+  <text x="698" y="437" font-size="16" font-weight="700">schemas.py</text>
+  <text x="698" y="456" class="micro">Pydantic validation</text>
+  <rect x="904" y="414" width="222" height="50" rx="11" fill="#faf7f0" stroke="#ddd1bc"/>
+  <text x="922" y="437" font-size="16" font-weight="700">jev_questions.py</text>
+  <text x="922" y="456" class="micro">typed question suites</text>
+
+  <!-- Configuration -->
+  <g filter="url(#shadow)">
+    <rect x="1270" y="243" width="258" height="245" rx="20" fill="#fff" stroke="#d8cfbf" stroke-width="2"/>
+  </g>
+  <text x="1300" y="283" class="label" fill="#4d7042">CONFIGURATION</text>
+  <text x="1300" y="320" class="cardTitle">Runtime Settings</text>
+  <rect x="1300" y="345" width="198" height="43" rx="9" fill="#f0f6ee" stroke="#c8d9c3"/>
+  <text x="1317" y="372" font-size="16" font-weight="650">settings.yaml</text>
+  <rect x="1300" y="401" width="198" height="43" rx="9" fill="#f0f6ee" stroke="#c8d9c3"/>
+  <text x="1317" y="428" font-size="16" font-weight="650">.env · API key</text>
+  <text x="1300" y="469" class="micro">Models · URLs · prompts · presets</text>
+
+  <!-- Arrows top -->
+  <path d="M502 330 C555 330 585 330 634 330" fill="none" stroke="#a47c2e" stroke-width="4" marker-end="url(#arrowGold)"/>
+  <text x="568" y="309" text-anchor="middle" class="micro" font-weight="700">JSON / REST</text>
+  <path d="M1270 365 C1228 365 1203 365 1172 365" fill="none" stroke="#557a4b" stroke-width="3" stroke-dasharray="8 7" marker-end="url(#arrowGold)"/>
+
+  <!-- Layer 2 -->
+  <text x="60" y="556" class="label" fill="#916d1f">02 · INTELLIGENCE &amp; INTEGRATION LAYER</text>
+  <line x1="60" y1="568" x2="1540" y2="568" stroke="#cdbd9c" stroke-width="1"/>
+
+  <!-- Jev service -->
+  <g filter="url(#shadow)">
+    <rect x="90" y="601" width="465" height="249" rx="22" fill="url(#jev)" stroke="#9bb6d7" stroke-width="2"/>
+  </g>
+  <circle cx="138" cy="650" r="25" fill="#365d8d"/>
+  <path d="M126 650l8 8 17-19" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="178" y="643" class="label" fill="#365d8d">FAST BRAIN · MACHINE PATH</text>
+  <text x="178" y="674" class="cardTitle">Jev Decision Service</text>
+  <text x="120" y="717" class="body">services/jev_client.py → OpenRouter Decisions API</text>
+  <rect x="120" y="742" width="112" height="40" rx="20" fill="#fff" stroke="#9bb6d7"/><text x="176" y="767" text-anchor="middle" font-size="16" font-weight="750" fill="#365d8d">noul</text>
+  <rect x="247" y="742" width="112" height="40" rx="20" fill="#fff" stroke="#9bb6d7"/><text x="303" y="767" text-anchor="middle" font-size="16" font-weight="750" fill="#365d8d">choice</text>
+  <rect x="374" y="742" width="112" height="40" rx="20" fill="#fff" stroke="#9bb6d7"/><text x="430" y="767" text-anchor="middle" font-size="16" font-weight="750" fill="#365d8d">score</text>
+  <text x="120" y="818" class="small">Typed probabilities · deterministic JSON · measured latency</text>
+
+  <!-- Orchestrator center -->
+  <g filter="url(#shadow)">
+    <rect x="625" y="620" width="350" height="210" rx="24" fill="#fff" stroke="#cdbd9c" stroke-width="2"/>
+  </g>
+  <circle cx="800" cy="668" r="29" fill="url(#gold)"/>
+  <path d="M787 668h26M800 655v26" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+  <text x="800" y="720" text-anchor="middle" class="cardTitle">Scenario Orchestrator</text>
+  <text x="800" y="750" text-anchor="middle" class="small">Builds state → calls AI → combines results</text>
+  <rect x="681" y="776" width="238" height="31" rx="15" fill="#f5f1e8"/>
+  <text x="800" y="797" text-anchor="middle" class="micro" font-weight="700">ASYNC HTTPX CLIENT</text>
+
+  <!-- LLM service -->
+  <g filter="url(#shadow)">
+    <rect x="1045" y="601" width="465" height="249" rx="22" fill="url(#llm)" stroke="#c99aae" stroke-width="2"/>
+  </g>
+  <circle cx="1093" cy="650" r="25" fill="#7a3248"/>
+  <path d="M1082 642h22v16h-14l-8 7z" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round"/>
+  <text x="1133" y="643" class="label" fill="#7a3248">SLOW BRAIN · HUMAN PATH</text>
+  <text x="1133" y="674" class="cardTitle">DeepSeek Mentor Service</text>
+  <text x="1075" y="717" class="body">services/mentor_chat.py → Chat Completions API</text>
+  <rect x="1075" y="742" width="188" height="40" rx="20" fill="#fff" stroke="#c99aae"/><text x="1169" y="767" text-anchor="middle" font-size="15" font-weight="700" fill="#7a3248">Explanations</text>
+  <rect x="1277" y="742" width="190" height="40" rx="20" fill="#fff" stroke="#c99aae"/><text x="1372" y="767" text-anchor="middle" font-size="15" font-weight="700" fill="#7a3248">Code Guidance</text>
+  <text x="1075" y="818" class="small">Natural language · mentor chat · actionable recommendations</text>
+
+  <!-- Intelligence arrows -->
+  <path d="M625 695 C600 695 586 695 565 695" fill="none" stroke="#365d8d" stroke-width="4" marker-end="url(#arrowBlue)"/>
+  <text x="592" y="677" text-anchor="middle" class="micro" font-weight="700">STATE + QUESTIONS</text>
+  <path d="M555 790 C580 813 601 813 625 790" fill="none" stroke="#365d8d" stroke-width="3" marker-end="url(#arrowBlue)"/>
+  <path d="M975 695 C1000 695 1017 695 1035 695" fill="none" stroke="#7a3248" stroke-width="4" marker-end="url(#arrowPurple)"/>
+  <text x="1005" y="677" text-anchor="middle" class="micro" font-weight="700">PROMPT</text>
+  <path d="M1045 790 C1020 813 999 813 975 790" fill="none" stroke="#7a3248" stroke-width="3" marker-end="url(#arrowPurple)"/>
+  <path d="M800 620 C800 565 900 532 900 498" fill="none" stroke="#a47c2e" stroke-width="4" marker-end="url(#arrowGold)"/>
+
+  <!-- Bottom response -->
+  <text x="60" y="917" class="label" fill="#916d1f">03 · UNIFIED RESPONSE</text>
+  <line x1="60" y1="929" x2="1540" y2="929" stroke="#cdbd9c" stroke-width="1"/>
+  <g filter="url(#shadow)">
+    <rect x="90" y="954" width="1420" height="82" rx="20" fill="#fff" stroke="#d4c8b4" stroke-width="2"/>
+  </g>
+  <rect x="90" y="954" width="12" height="82" rx="6" fill="url(#gold)"/>
+  <text x="128" y="986" font-size="18" font-weight="750">Browser receives one production-ready JSON payload</text>
+  <text x="128" y="1014" class="small">Structured Jev decision + probabilities + severity + latency + DeepSeek mentor guidance</text>
+  <g>
+    <rect x="1040" y="974" width="124" height="42" rx="21" fill="#eaf1fb" stroke="#9bb6d7"/><text x="1102" y="1001" text-anchor="middle" font-size="15" font-weight="700" fill="#365d8d">Decision</text>
+    <rect x="1178" y="974" width="124" height="42" rx="21" fill="#f9eaf1" stroke="#c99aae"/><text x="1240" y="1001" text-anchor="middle" font-size="15" font-weight="700" fill="#7a3248">Guidance</text>
+    <rect x="1316" y="974" width="160" height="42" rx="21" fill="#f0f6ee" stroke="#b7ceb0"/><text x="1396" y="1001" text-anchor="middle" font-size="15" font-weight="700" fill="#4d7042">UI Visualization</text>
+  </g>
+
+  <!-- Scenario ribbon -->
+  <rect x="115" y="514" width="1370" height="35" rx="17" fill="#ede6d8"/>
+  <text x="800" y="537" text-anchor="middle" font-size="14" font-weight="700" fill="#675c4c">DATA QUALITY  •  PIPELINE ROUTER  •  ANOMALY TRIAGE  •  SCHEMA ADVISOR  •  MENTOR CHAT  •  JEV vs LLM ARENA</text>
+</svg>

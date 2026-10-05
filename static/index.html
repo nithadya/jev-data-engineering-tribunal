@@ -1,0 +1,2061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DE Mentor · Jev Roman Tribunal — Modern Data Engineering Decisions</title>
+  <meta name="description" content="Greco-Roman themed Data Engineering decision laboratory. Compare Jev structured decision models vs general LLMs on real CSV user data." />
+  
+  <!-- ═══════════════════════════════════════════════════════════════════════════
+       GOOGLE FONTS — Cinzel (Greco-Roman Monumental Inscriptions)
+       + Plus Jakarta Sans (Crystal Clear Modern UI)
+       + JetBrains Mono (Precision Code & Metrics)
+       ═══════════════════════════════════════════════════════════════════════════ -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════
+       LUCIDE VECTOR ICONS (Crisp, clean vector icons)
+       ═══════════════════════════════════════════════════════════════════════════ -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* ═══════════════════════════════════════════════════════════════════════════
+       DESIGN TOKENS — Classical Greco-Roman Marble & Imperial Gold Palette
+       ═══════════════════════════════════════════════════════════════════════════ */
+    :root {
+      /* Backgrounds & Marble Surfaces */
+      --bg-base:        #faf8f3; /* Fine Greek Parchment */
+      --bg-card:        #ffffff; /* Polished Pentelic Marble */
+      --bg-card-alt:    #f5f1e8; /* Warm Travertine Stone */
+      --bg-input:       #f9f7f2;
+      --bg-code:        #1f1b16; /* Roman Basalt */
+
+      /* Roman Classical Borders */
+      --border:         #e5dfd2; /* Soft Limestone */
+      --border-hover:   #cfc5b2;
+      --border-gold:    rgba(184, 144, 56, 0.4);
+      --border-gold-dark: #9e7925;
+
+      /* Classical Greco-Roman Accents */
+      --gold-roman:     #b89038; /* Imperial Gold */
+      --gold-deep:      #916d1f;
+      --gold-glow:      rgba(184, 144, 56, 0.18);
+      --terracotta:     #b8523c; /* Roman Terracotta */
+      --terracotta-bg:  #fdf2ef;
+      --laurel:         #4d7042; /* Laurel Green */
+      --laurel-bg:      #f0f6ee;
+      --lapis:          #2d4972; /* Imperial Lapis Navy */
+      --lapis-bg:       #f0f4fa;
+      --tyrian:         #7a3248; /* Tyrian Purple */
+      --tyrian-bg:      #fbf0f4;
+      --amber:          #c67d18;
+
+      /* Typography */
+      --text-1:         #231d16; /* Deep Roman Charcoal */
+      --text-2:         #5c5344; /* Warm Slate Sepia */
+      --text-3:         #968b78; /* Stone Inscription Gray */
+      --text-heading:   #1a150e; /* Obsidian Black */
+
+      /* Fonts */
+      --font-roman:     'Cinzel', Georgia, 'Times New Roman', serif;
+      --font-sans:      'Plus Jakarta Sans', system-ui, sans-serif;
+      --font-mono:      'JetBrains Mono', 'Fira Code', monospace;
+
+      /* Radii */
+      --radius-sm:      6px;
+      --radius-md:      10px;
+      --radius-lg:      16px;
+      --radius-pill:    9999px;
+
+      /* Shadows */
+      --shadow-sm:      0 1px 3px rgba(40, 32, 20, 0.05);
+      --shadow-card:    0 4px 20px -2px rgba(40, 32, 20, 0.07), 0 1px 4px rgba(40, 32, 20, 0.03);
+      --shadow-card-hover: 0 10px 30px -4px rgba(184, 144, 56, 0.15), 0 2px 8px rgba(40, 32, 20, 0.06);
+      --shadow-gold:    0 3px 14px rgba(184, 144, 56, 0.28);
+    }
+
+    /* ── Reset & Baseline ────────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-base);
+      color: var(--text-1);
+      min-height: 100vh;
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+
+      /* Roman Mosaic Stone Micro-Grid */
+      background-image: radial-gradient(circle, rgba(184, 144, 56, 0.12) 1.2px, transparent 1.2px);
+      background-size: 24px 24px;
+    }
+
+    /* ── Greek Key / Meander Decorative Top Border ───────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      background: linear-gradient(90deg,
+        var(--gold-roman) 0%,
+        var(--terracotta) 25%,
+        var(--tyrian) 50%,
+        var(--lapis) 75%,
+        var(--laurel) 90%,
+        var(--gold-roman) 100%
+      );
+      z-index: 1000;
+      box-shadow: 0 1px 4px rgba(184, 144, 56, 0.3);
+    }
+
+    /* ── Lucide Icon Styles ─────────────────────────────────────────────────── */
+    svg.lucide {
+      width: 17px; height: 17px;
+      stroke-width: 2.1px;
+      display: inline-block;
+      vertical-align: middle;
+      flex-shrink: 0;
+    }
+    .icon-xs svg.lucide { width: 14px; height: 14px; }
+    .icon-sm svg.lucide { width: 16px; height: 16px; }
+    .icon-md svg.lucide { width: 20px; height: 20px; }
+    .icon-lg svg.lucide { width: 26px; height: 26px; }
+
+    /* ── Container ──────────────────────────────────────────────────────────── */
+    .wrap {
+      position: relative; z-index: 1;
+      max-width: 1160px; margin: 0 auto;
+      padding: 0 24px 70px;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       HEADER — Roman Forum Architrave
+       ═══════════════════════════════════════════════════════════════════════════ */
+    header {
+      padding: 30px 0 22px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 2px solid var(--border);
+      gap: 16px;
+    }
+    .brand-wrap { display: flex; align-items: center; gap: 16px; }
+    .brand-logo {
+      width: 48px; height: 48px;
+      background: linear-gradient(135deg, var(--gold-roman), #d8ae4d);
+      border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      color: #ffffff;
+      box-shadow: 0 4px 16px rgba(184, 144, 56, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      flex-shrink: 0;
+    }
+    .brand-logo svg.lucide { width: 24px; height: 24px; stroke: #ffffff; }
+
+    .brand-meta h1 {
+      font-family: var(--font-roman);
+      font-size: 1.35rem; font-weight: 700;
+      letter-spacing: 0.04em; color: var(--text-heading);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .brand-meta h1 span.gold { color: var(--gold-roman); }
+    .roman-badge {
+      font-family: var(--font-sans);
+      font-size: 0.65rem; font-weight: 700;
+      padding: 2px 8px; border-radius: var(--radius-pill);
+      background: rgba(184, 144, 56, 0.12);
+      border: 1px solid var(--border-gold);
+      color: var(--gold-deep);
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .brand-meta p {
+      font-size: 0.8rem; color: var(--text-2);
+      margin-top: 2px;
+    }
+
+    .header-actions { display: flex; align-items: center; gap: 12px; }
+    .status-badge {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 14px; border-radius: var(--radius-pill);
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      font-size: 0.75rem; font-weight: 600; color: var(--text-2);
+      box-shadow: var(--shadow-sm);
+    }
+    .pulse-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--text-3); flex-shrink: 0;
+    }
+    .pulse-dot.green {
+      background: var(--laurel);
+      box-shadow: 0 0 0 3px rgba(77, 112, 66, 0.25);
+      animation: pulseGreen 2.4s infinite;
+    }
+    .pulse-dot.amber { background: var(--amber); box-shadow: 0 0 0 3px rgba(198, 125, 24, 0.25); }
+    .pulse-dot.red   { background: var(--terracotta); box-shadow: 0 0 0 3px rgba(184, 82, 60, 0.25); }
+    @keyframes pulseGreen {
+      0%   { box-shadow: 0 0 0 0 rgba(77, 112, 66, 0.5); }
+      70%  { box-shadow: 0 0 0 7px rgba(77, 112, 66, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(77, 112, 66, 0); }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       HERO — Classical Inscription Style
+       ═══════════════════════════════════════════════════════════════════════════ */
+    .hero {
+      padding: 44px 0 32px;
+      text-align: center;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    .hero-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 16px; border-radius: var(--radius-pill);
+      background: rgba(184, 144, 56, 0.08);
+      border: 1px solid var(--border-gold);
+      font-size: 0.74rem; font-weight: 700; color: var(--gold-deep);
+      text-transform: uppercase; letter-spacing: 0.08em;
+      margin-bottom: 18px;
+    }
+    .hero h2 {
+      font-family: var(--font-roman);
+      font-size: clamp(2rem, 3.8vw, 2.75rem);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      line-height: 1.24;
+      color: var(--text-heading);
+    }
+    .hero h2 em {
+      color: var(--gold-roman);
+      font-style: normal;
+      background: linear-gradient(135deg, var(--gold-deep), var(--gold-roman));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      color: var(--text-2);
+      font-size: 0.98rem;
+      margin-top: 14px;
+      line-height: 1.65;
+    }
+
+    /* ── Greek Classical Divider ────────────────────────────────────────────── */
+    .greek-divider {
+      display: flex; align-items: center; gap: 16px;
+      margin: 32px 0 20px; color: var(--gold-roman);
+    }
+    .greek-divider::before, .greek-divider::after {
+      content: ''; flex: 1; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border-gold), transparent);
+    }
+    .greek-divider .divider-title {
+      font-family: var(--font-roman);
+      font-size: 0.78rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--gold-deep);
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       TRIBUNAL PILLARS — 3 Core Decision Types
+       ═══════════════════════════════════════════════════════════════════════════ */
+    .pillar-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+      margin-bottom: 34px;
+    }
+    .pillar-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 22px 24px;
+      box-shadow: var(--shadow-card);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.25s ease;
+    }
+    .pillar-card:hover {
+      border-color: var(--border-gold);
+      box-shadow: var(--shadow-card-hover);
+      transform: translateY(-2px);
+    }
+    .pillar-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+    .pillar-card.noul::before   { background: linear-gradient(90deg, var(--lapis), #517eb9); }
+    .pillar-card.choice::before { background: linear-gradient(90deg, var(--tyrian), #a4536d); }
+    .pillar-card.score::before  { background: linear-gradient(90deg, var(--gold-roman), #dfb758); }
+
+    .pillar-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .pillar-num {
+      font-family: var(--font-roman);
+      font-size: 0.7rem; font-weight: 700;
+      letter-spacing: 0.1em; color: var(--text-3);
+      text-transform: uppercase;
+    }
+    .pillar-icon {
+      width: 32px; height: 32px; border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .pillar-card.noul .pillar-icon   { background: var(--lapis-bg); color: var(--lapis); }
+    .pillar-card.choice .pillar-icon { background: var(--tyrian-bg); color: var(--tyrian); }
+    .pillar-card.score .pillar-icon  { background: rgba(184, 144, 56, 0.1); color: var(--gold-deep); }
+
+    .pillar-type {
+      font-size: 1.3rem; font-weight: 700;
+      font-family: var(--font-mono);
+      margin-bottom: 6px;
+    }
+    .pillar-card.noul .pillar-type   { color: var(--lapis); }
+    .pillar-card.choice .pillar-type { color: var(--tyrian); }
+    .pillar-card.score .pillar-type  { color: var(--gold-deep); }
+
+    .pillar-desc {
+      font-size: 0.82rem; color: var(--text-2); line-height: 1.55;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       ROMAN FORUM TABS
+       ═══════════════════════════════════════════════════════════════════════════ */
+    .tabs-wrap { margin-bottom: 24px; }
+    .tabs {
+      display: flex; gap: 4px; padding: 5px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      overflow-x: auto;
+    }
+    .tab-btn {
+      flex: 1; min-width: 135px;
+      padding: 10px 14px; border: none; border-radius: var(--radius-sm);
+      background: transparent; color: var(--text-2);
+      font-family: var(--font-sans); font-size: 0.8rem; font-weight: 600;
+      cursor: pointer; white-space: nowrap;
+      transition: all 0.2s ease;
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+    }
+    .tab-btn:hover {
+      background: var(--bg-card-alt);
+      color: var(--text-1);
+    }
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--gold-deep), var(--gold-roman));
+      color: #ffffff;
+      box-shadow: var(--shadow-gold);
+    }
+    .tab-btn.active svg.lucide { stroke: #ffffff; }
+
+    /* Special Highlight for Battle & CSV Tabs */
+    .tab-btn.highlight-tab {
+      color: var(--gold-deep);
+      font-weight: 700;
+    }
+    .tab-btn.highlight-tab.active { color: #ffffff; }
+
+    /* ── Panels ─────────────────────────────────────────────────────────────── */
+    .panel { display: none; }
+    .panel.active { display: block; animation: panelFade 0.25s ease; }
+    @keyframes panelFade {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       MARBLE CARDS & FORM ELEMENTS
+       ═══════════════════════════════════════════════════════════════════════════ */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 28px 30px;
+      box-shadow: var(--shadow-card);
+      margin-bottom: 22px;
+    }
+    .card-title {
+      font-family: var(--font-roman);
+      font-size: 1.15rem; font-weight: 700;
+      letter-spacing: 0.03em; color: var(--text-heading);
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 8px;
+    }
+    .card-title-icon {
+      width: 32px; height: 32px; border-radius: var(--radius-sm);
+      background: rgba(184, 144, 56, 0.12); color: var(--gold-deep);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .card-subtitle {
+      font-size: 0.85rem; color: var(--text-2); margin-bottom: 20px; line-height: 1.55;
+    }
+
+    /* ── Preset Buttons ─────────────────────────────────────────────────────── */
+    .presets {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+      margin-bottom: 20px; padding: 12px 16px;
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+    }
+    .presets-label {
+      font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.05em; color: var(--text-3);
+      display: flex; align-items: center; gap: 5px;
+    }
+    .preset-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 13px; border-radius: var(--radius-pill);
+      border: 1px solid var(--border);
+      background: #ffffff;
+      color: var(--text-1); font-size: 0.76rem; font-weight: 500;
+      cursor: pointer; transition: all 0.18s ease;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    }
+    .preset-btn:hover {
+      border-color: var(--gold-roman);
+      color: var(--gold-deep);
+      background: rgba(184, 144, 56, 0.06);
+      transform: translateY(-1px);
+    }
+
+    /* ── Form Controls ──────────────────────────────────────────────────────── */
+    .form-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+      margin-bottom: 20px;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full { grid-column: 1 / -1; }
+
+    label {
+      font-size: 0.75rem; font-weight: 600; color: var(--text-2);
+      letter-spacing: 0.02em; display: flex; align-items: center; gap: 6px;
+    }
+    input[type=text], input[type=number], textarea, select {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-1);
+      font-family: var(--font-sans); font-size: 0.88rem;
+      padding: 10px 14px; outline: none;
+      transition: all 0.2s ease;
+      width: 100%;
+    }
+    input:focus, textarea:focus, select:focus {
+      background: #ffffff;
+      border-color: var(--gold-roman);
+      box-shadow: 0 0 0 3px var(--gold-glow);
+    }
+    textarea { min-height: 84px; resize: vertical; line-height: 1.5; }
+
+    /* ── Buttons ────────────────────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 11px 22px; border-radius: var(--radius-sm);
+      border: none; cursor: pointer; font-family: var(--font-sans);
+      font-size: 0.86rem; font-weight: 600;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-gold {
+      background: linear-gradient(135deg, var(--gold-deep) 0%, var(--gold-roman) 100%);
+      color: #ffffff;
+      box-shadow: var(--shadow-gold);
+    }
+    .btn-gold:hover {
+      background: linear-gradient(135deg, #7c5c16 0%, var(--gold-deep) 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(184, 144, 56, 0.4);
+    }
+    .btn-gold:disabled {
+      opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none;
+    }
+
+    .btn-secondary {
+      background: #ffffff;
+      color: var(--text-1);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover {
+      background: var(--bg-card-alt);
+      border-color: var(--border-hover);
+    }
+
+    /* ── Loader & Error ─────────────────────────────────────────────────────── */
+    .loader {
+      display: none; align-items: center; gap: 10px;
+      padding: 14px 0; color: var(--gold-deep); font-size: 0.85rem; font-weight: 500;
+    }
+    .loader.show { display: flex; }
+    .spinner {
+      width: 18px; height: 18px; border-radius: 50%;
+      border: 2px solid rgba(184, 144, 56, 0.25);
+      border-top-color: var(--gold-roman);
+      animation: spin 0.75s linear infinite; flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-bar {
+      display: none; align-items: center; gap: 10px;
+      padding: 12px 16px; border-radius: var(--radius-sm);
+      background: var(--terracotta-bg);
+      border: 1px solid rgba(184, 82, 60, 0.3);
+      color: var(--terracotta); font-size: 0.84rem; font-weight: 500;
+      margin-bottom: 14px;
+    }
+    .error-bar.show { display: flex; }
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       ARENA — Jev vs LLM Side-by-Side Comparison Matrix
+       ═══════════════════════════════════════════════════════════════════════════ */
+    .battle-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 18px;
+      margin-top: 20px;
+    }
+    .battle-col {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 22px;
+      position: relative;
+    }
+    .battle-col.jev-col {
+      border-color: var(--border-gold);
+      box-shadow: 0 4px 20px rgba(184, 144, 56, 0.12);
+    }
+    .battle-col.llm-col {
+      border-color: #cbd5e1;
+      background: #fafafb;
+    }
+    .battle-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px; padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .battle-title {
+      font-family: var(--font-roman);
+      font-size: 0.95rem; font-weight: 700;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .battle-col.jev-col .battle-title { color: var(--gold-deep); }
+    .battle-col.llm-col .battle-title { color: #475569; }
+
+    .latency-tag {
+      font-family: var(--font-mono);
+      font-size: 0.72rem; font-weight: 700;
+      padding: 4px 10px; border-radius: var(--radius-pill);
+    }
+    .latency-tag.fast {
+      background: var(--laurel-bg); color: var(--laurel);
+      border: 1px solid rgba(77, 112, 66, 0.3);
+    }
+    .latency-tag.slow {
+      background: var(--terracotta-bg); color: var(--terracotta);
+      border: 1px solid rgba(184, 82, 60, 0.3);
+    }
+
+    .battle-summary-card {
+      background: linear-gradient(135deg, rgba(184, 144, 56, 0.08), rgba(77, 112, 66, 0.06));
+      border: 1px solid var(--border-gold);
+      border-radius: var(--radius-md);
+      padding: 18px 22px;
+      margin-top: 18px;
+    }
+    .battle-summary-card h4 {
+      font-family: var(--font-roman);
+      font-size: 0.88rem; font-weight: 700; color: var(--gold-deep);
+      margin-bottom: 6px; display: flex; align-items: center; gap: 8px;
+    }
+    .battle-summary-card p {
+      font-size: 0.84rem; color: var(--text-1); line-height: 1.6;
+    }
+
+    /* Comparison Table */
+    .compare-table {
+      width: 100%; border-collapse: collapse; margin-top: 14px;
+      font-size: 0.82rem;
+    }
+    .compare-table th {
+      font-family: var(--font-roman); font-size: 0.72rem;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      padding: 8px 10px; text-align: left;
+      border-bottom: 2px solid var(--border); color: var(--text-2);
+    }
+    .compare-table td {
+      padding: 10px; border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+    .compare-table tr:last-child td { border-bottom: none; }
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       REAL CSV LAB — Live CSV Upload, Paste & Profiler
+       ═══════════════════════════════════════════════════════════════════════════ */
+    .csv-dropzone {
+      border: 2px dashed var(--border-gold);
+      border-radius: var(--radius-md);
+      padding: 24px; text-align: center;
+      background: rgba(184, 144, 56, 0.02);
+      transition: all 0.2s ease;
+      cursor: pointer; margin-bottom: 18px;
+    }
+    .csv-dropzone:hover {
+      background: rgba(184, 144, 56, 0.06);
+      border-color: var(--gold-roman);
+    }
+    .csv-dropzone.dragover {
+      background: rgba(184, 144, 56, 0.12);
+      border-color: var(--gold-deep);
+    }
+    .csv-dropzone-content {
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      color: var(--text-2); font-size: 0.85rem;
+    }
+
+    .dataset-table-wrap {
+      max-height: 360px; overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-top: 16px;
+    }
+    .dataset-table {
+      width: 100%; border-collapse: collapse; font-size: 0.8rem;
+    }
+    .dataset-table th {
+      position: sticky; top: 0; background: var(--bg-card-alt);
+      font-family: var(--font-roman); font-size: 0.72rem;
+      letter-spacing: 0.05em; text-transform: uppercase;
+      padding: 10px 12px; text-align: left;
+      border-bottom: 2px solid var(--border); color: var(--text-1);
+    }
+    .dataset-table td {
+      padding: 9px 12px; border-bottom: 1px solid var(--border);
+      color: var(--text-2);
+    }
+    .dataset-table tr:hover td { background: rgba(184, 144, 56, 0.04); }
+
+    .tag-type {
+      display: inline-block; font-family: var(--font-mono);
+      font-size: 0.68rem; padding: 2px 7px; border-radius: var(--radius-pill);
+      font-weight: 600;
+    }
+    .tag-type.numeric { background: var(--lapis-bg); color: var(--lapis); }
+    .tag-type.string  { background: var(--tyrian-bg); color: var(--tyrian); }
+    .tag-type.nulls   { background: var(--terracotta-bg); color: var(--terracotta); }
+
+    .action-btn-mini {
+      padding: 4px 10px; border-radius: var(--radius-pill);
+      font-size: 0.72rem; font-weight: 600; cursor: pointer;
+      border: 1px solid var(--border-gold); background: #ffffff;
+      color: var(--gold-deep); transition: all 0.15s ease;
+      display: inline-flex; align-items: center; gap: 4px;
+    }
+    .action-btn-mini:hover {
+      background: var(--gold-roman); color: #ffffff;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       RESULTS MATRIX
+       ═══════════════════════════════════════════════════════════════════════════ */
+    .result-card {
+      display: none;
+      background: var(--bg-card);
+      border: 1px solid var(--border-gold);
+      border-radius: var(--radius-lg);
+      padding: 26px 28px;
+      box-shadow: 0 6px 24px rgba(184, 144, 56, 0.1);
+      animation: fadeUp 0.3s ease;
+      margin-bottom: 22px;
+    }
+    .result-card.show { display: block; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .result-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px; padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .result-title {
+      font-family: var(--font-roman);
+      font-size: 0.86rem; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--gold-deep);
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    /* Decision Grid */
+    .jev-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 14px; margin-bottom: 20px;
+    }
+    .jev-metric {
+      background: var(--bg-card-alt);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+      transition: all 0.2s ease;
+    }
+    .jev-metric:hover {
+      background: #ffffff;
+      border-color: var(--border-gold);
+      box-shadow: var(--shadow-sm);
+    }
+    .jev-metric .m-label {
+      font-family: var(--font-roman);
+      font-size: 0.68rem; font-weight: 700; color: var(--text-3);
+      text-transform: uppercase; letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+    .jev-metric .m-value {
+      font-size: 1.35rem; font-weight: 700;
+      font-family: var(--font-mono);
+    }
+    .jev-metric .m-sub {
+      font-size: 0.72rem; color: var(--text-3); margin-top: 3px;
+    }
+    .m-value.green  { color: var(--laurel); }
+    .m-value.amber  { color: var(--amber); }
+    .m-value.red    { color: var(--terracotta); }
+    .m-value.blue   { color: var(--lapis); }
+    .m-value.purple { color: var(--tyrian); }
+    .m-value.cyan   { color: #0891b2; }
+
+    /* Probability Bars */
+    .prob-bars { margin-bottom: 20px; }
+    .prob-bars .pb-title {
+      font-family: var(--font-roman);
+      font-size: 0.78rem; font-weight: 700; color: var(--text-2);
+      margin-bottom: 10px; letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .prob-row {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 8px;
+    }
+    .prob-row .pr-label {
+      font-size: 0.78rem; font-family: var(--font-mono);
+      color: var(--text-2); min-width: 120px; font-weight: 500;
+    }
+    .prob-row .pr-bar-wrap {
+      flex: 1; background: #e9e3d7;
+      border-radius: var(--radius-pill); height: 8px; overflow: hidden;
+    }
+    .prob-row .pr-bar {
+      height: 100%; border-radius: var(--radius-pill);
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .prob-row .pr-pct {
+      font-size: 0.74rem; font-family: var(--font-mono); font-weight: 600;
+      color: var(--text-1); min-width: 44px; text-align: right;
+    }
+
+    /* Mentor Tip */
+    .mentor-tip {
+      background: linear-gradient(135deg, rgba(184, 144, 56, 0.06), rgba(77, 112, 66, 0.05));
+      border: 1px solid var(--border-gold);
+      border-radius: var(--radius-md);
+      padding: 20px 22px;
+    }
+    .mentor-tip .mt-header {
+      font-family: var(--font-roman);
+      font-size: 0.76rem; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--gold-deep); margin-bottom: 10px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .mentor-tip .mt-body {
+      font-size: 0.88rem; color: var(--text-1);
+      line-height: 1.7; white-space: pre-wrap;
+    }
+
+    /* Code Snippet */
+    .code-snippet-wrap {
+      background: var(--bg-code);
+      border: 1px solid rgba(184, 144, 56, 0.3);
+      border-radius: var(--radius-md);
+      overflow: hidden; margin: 16px 0;
+    }
+    .code-header {
+      background: rgba(255, 255, 255, 0.04);
+      padding: 9px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.72rem; color: #a89f91; font-family: var(--font-mono);
+    }
+    .code-snippet {
+      padding: 16px 18px;
+      font-family: var(--font-mono); font-size: 0.8rem;
+      color: #ede7dc; overflow-x: auto; line-height: 1.65;
+    }
+    .code-snippet .kw  { color: #e5b958; font-weight: 600; }
+    .code-snippet .str { color: #8bc34a; }
+    .code-snippet .fn  { color: #64b5f6; }
+    .code-snippet .cm  { color: #8d8376; font-style: italic; }
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       CHAT PANEL
+       ═══════════════════════════════════════════════════════════════════════════ */
+    .chat-history {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md); padding: 18px;
+      min-height: 250px; max-height: 420px; overflow-y: auto;
+      margin-bottom: 14px; display: flex; flex-direction: column; gap: 14px;
+    }
+    .chat-msg { display: flex; flex-direction: column; gap: 6px; }
+    .chat-msg .cm-header {
+      display: flex; align-items: center; gap: 6px;
+      font-family: var(--font-roman);
+      font-size: 0.74rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .chat-msg.user .cm-header { color: var(--lapis); }
+    .chat-msg.assistant .cm-header { color: var(--gold-deep); }
+    .chat-msg .cm-text {
+      font-size: 0.88rem; line-height: 1.65;
+      padding: 12px 16px; border-radius: var(--radius-md);
+      white-space: pre-wrap;
+    }
+    .chat-msg.user .cm-text {
+      background: var(--lapis-bg); color: var(--text-1);
+      align-self: flex-start; max-width: 85%;
+      border: 1px solid rgba(45, 73, 114, 0.15);
+    }
+    .chat-msg.assistant .cm-text {
+      background: #ffffff; color: var(--text-1);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+    .chat-empty {
+      color: var(--text-3); font-size: 0.85rem;
+      text-align: center; padding: 48px 0;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       FOOTER
+       ═══════════════════════════════════════════════════════════════════════════ */
+    footer {
+      margin-top: 50px; padding: 30px 0;
+      border-top: 2px solid var(--border);
+      text-align: center; font-size: 0.8rem; color: var(--text-3);
+    }
+    footer .motto {
+      font-family: var(--font-roman);
+      font-style: italic; font-size: 0.92rem;
+      color: var(--gold-deep); margin-bottom: 10px;
+    }
+    footer a {
+      color: var(--gold-deep); text-decoration: none; font-weight: 600;
+    }
+    footer a:hover { text-decoration: underline; }
+
+    /* ── Responsive ─────────────────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .pillar-grid { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .battle-grid { grid-template-columns: 1fr; }
+      header { flex-direction: column; align-items: flex-start; }
+      .header-actions { width: 100%; justify-content: space-between; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ── Header ───────────────────────────────────────────────────────────── -->
+  <header>
+    <div class="brand-wrap">
+      <div class="brand-logo">
+        <i data-lucide="landmark"></i>
+      </div>
+      <div class="brand-meta">
+        <h1>DE MENTOR <span class="gold">×</span> JEV TRIBUNAL <span class="roman-badge">v1.13</span></h1>
+        <p>TypeSafe AI Decision Engine for Production Data Engineering</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="status-badge" id="status-pill">
+        <div class="pulse-dot" id="status-dot"></div>
+        <span id="status-text">Consulting the Jev Tribunal…</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Hero ─────────────────────────────────────────────────────────────── -->
+  <section class="hero">
+    <div class="hero-pill">
+      <i data-lucide="crown" class="icon-xs"></i>
+      <span>Jev Decisions API · Sub-Second Math · OpenRouter</span>
+    </div>
+    <h2>
+      Calibrated <em>Decisions</em> for High-Throughput Data Pipelines
+    </h2>
+    <p>
+      Execute typed, low-latency decisions for Data Engineering. Compare Jev's sub-second calibrated probabilities directly against general generative LLMs on your real CSV datasets.
+    </p>
+  </section>
+
+  <!-- ── Greek Divider: Three Pillars ──────────────────────────────────────── -->
+  <div class="greek-divider">
+    <span class="divider-title"><i data-lucide="columns-3" class="icon-xs"></i> Tria Principia · The Three Pillars of Jev</span>
+  </div>
+
+  <!-- ── Concept Cards (Three Pillars) ────────────────────────────────────── -->
+  <div class="pillar-grid">
+    <div class="pillar-card noul">
+      <div class="pillar-header">
+        <span class="pillar-num">Pillar I · Binary</span>
+        <div class="pillar-icon"><i data-lucide="scale"></i></div>
+      </div>
+      <div class="pillar-type">noul</div>
+      <div class="pillar-desc">Outputs a calibrated probability <strong>0.0 → 1.0</strong> for yes/no conditions. Used for real-time data quality gates and downstream ingestion safety.</div>
+    </div>
+
+    <div class="pillar-card choice">
+      <div class="pillar-header">
+        <span class="pillar-num">Pillar II · Categorical</span>
+        <div class="pillar-icon"><i data-lucide="git-branch"></i></div>
+      </div>
+      <div class="pillar-type">choice</div>
+      <div class="pillar-desc">Selects the optimal class from a named candidate set with full probability distribution. Used for pipeline routing and defect classification.</div>
+    </div>
+
+    <div class="pillar-card score">
+      <div class="pillar-header">
+        <span class="pillar-num">Pillar III · Rubric</span>
+        <div class="pillar-icon"><i data-lucide="gauge"></i></div>
+      </div>
+      <div class="pillar-type">score</div>
+      <div class="pillar-desc">Returns a position on an ordered scale (e.g. <strong>1 → 3</strong>). Used for incident severity ranking, triage urgency, and lakehouse complexity.</div>
+    </div>
+  </div>
+
+  <!-- ── Greek Divider: Navigation ────────────────────────────────────────── -->
+  <div class="greek-divider">
+    <span class="divider-title"><i data-lucide="compass" class="icon-xs"></i> Roman Forum · Decision Laboratories</span>
+  </div>
+
+  <!-- ── Tabs Navigation ──────────────────────────────────────────────────── -->
+  <div class="tabs-wrap">
+    <div class="tabs" role="tablist">
+      <button class="tab-btn highlight-tab active" onclick="switchTab('arena')" id="tab-arena" role="tab">
+        <i data-lucide="swords"></i>
+        <span>Jev vs LLM Arena</span>
+      </button>
+      <button class="tab-btn highlight-tab" onclick="switchTab('csvlab')" id="tab-csvlab" role="tab">
+        <i data-lucide="file-spreadsheet"></i>
+        <span>Real CSV Lab</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('dq')" id="tab-dq" role="tab">
+        <i data-lucide="shield-check"></i>
+        <span>Data Quality</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('pr')" id="tab-pr" role="tab">
+        <i data-lucide="git-fork"></i>
+        <span>Pipeline Router</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('at')" id="tab-at" role="tab">
+        <i data-lucide="alert-triangle"></i>
+        <span>Anomaly Triage</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('sa')" id="tab-sa" role="tab">
+        <i data-lucide="database"></i>
+        <span>Schema Advisor</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('mc')" id="tab-mc" role="tab">
+        <i data-lucide="message-square-code"></i>
+        <span>Mentor Forum</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════
+       PANEL 0 — ARENA: Jev vs General LLM Head-to-Head Comparison
+       ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="panel active" id="panel-arena">
+    <div class="card">
+      <div class="card-title">
+        <div class="card-title-icon"><i data-lucide="swords"></i></div>
+        <span>Colosseum Arena — Jev vs Standard LLM Battle</span>
+      </div>
+      <div class="card-subtitle">
+        Execute the <strong>exact same Data Engineering task</strong> simultaneously with both <strong>Jev (TypeSafe AI Decisions)</strong> and a <strong>General Generative LLM (DeepSeek)</strong>. Observe latency, output determinism, and streaming pipeline safety.
+      </div>
+
+      <div class="presets">
+        <div class="presets-label"><i data-lucide="play-circle" class="icon-xs"></i> Battle Scenarios:</div>
+        <button class="preset-btn" onclick="setArenaScenario('nulls')"><i data-lucide="alert-circle" class="icon-xs" style="color:var(--amber)"></i> High Null Column (42%)</button>
+        <button class="preset-btn" onclick="setArenaScenario('clean')"><i data-lucide="check-circle-2" class="icon-xs" style="color:var(--laurel)"></i> Clean Payment Amounts</button>
+        <button class="preset-btn" onclick="setArenaScenario('outliers')"><i data-lucide="trending-up" class="icon-xs" style="color:var(--terracotta)"></i> Severe Outliers (-999, 999999)</button>
+        <button class="preset-btn" onclick="setArenaScenario('mixed')"><i data-lucide="shuffle" class="icon-xs" style="color:var(--tyrian)"></i> Mixed IDs & Integers</button>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="arena-col"><i data-lucide="tag" class="icon-xs"></i> Column Name</label>
+          <input type="text" id="arena-col" value="customer_age" />
+        </div>
+        <div class="form-group">
+          <label for="arena-null"><i data-lucide="percent" class="icon-xs"></i> Null Percentage (%)</label>
+          <input type="number" id="arena-null" value="42" step="0.1" />
+        </div>
+        <div class="form-group full">
+          <label for="arena-samples"><i data-lucide="list" class="icon-xs"></i> Sample Values (first 10)</label>
+          <input type="text" id="arena-samples" value="25, 31, null, -999, 150, abc, 28, null, 22, null" />
+        </div>
+        <div class="form-group full">
+          <label for="arena-desc"><i data-lucide="file-text" class="icon-xs"></i> Column Context / Description</label>
+          <input type="text" id="arena-desc" value="Customer age in years from CRM system export" />
+        </div>
+      </div>
+
+      <div class="error-bar" id="arena-err"><i data-lucide="alert-octagon"></i> <span id="arena-err-msg"></span></div>
+      <div class="loader" id="arena-loader"><div class="spinner"></div><span>Running parallel battle: Jev vs General LLM…</span></div>
+
+      <button class="btn btn-gold" id="arena-btn" onclick="runArenaComparison()">
+        <i data-lucide="zap"></i>
+        <span>Execute Head-to-Head Battle</span>
+      </button>
+    </div>
+
+    <!-- Battle Results Grid -->
+    <div class="result-card" id="arena-result">
+      <div class="result-header">
+        <div class="result-title"><i data-lucide="trophy"></i> Head-to-Head Comparative Output</div>
+        <div class="latency-tag fast" id="arena-speedup-tag">Speedup: —x</div>
+      </div>
+
+      <div class="battle-grid">
+        <!-- Jev Column -->
+        <div class="battle-col jev-col">
+          <div class="battle-header">
+            <div class="battle-title"><i data-lucide="cpu"></i> JEV DECISIONS</div>
+            <div class="latency-tag fast" id="arena-jev-latency">— ms</div>
+          </div>
+          <div style="font-size:0.75rem; color:var(--text-3); text-transform:uppercase; margin-bottom:8px; font-weight:700">Strict Typed JSON Output</div>
+          <div class="jev-grid" id="arena-jev-metrics" style="grid-template-columns: 1fr 1fr; margin-bottom:12px"></div>
+          <div class="prob-bars" id="arena-jev-probs" style="margin-bottom:12px"></div>
+          <div style="padding:10px 12px; background:var(--laurel-bg); border:1px solid rgba(77,112,66,0.3); border-radius:var(--radius-sm); font-size:0.78rem; color:var(--laurel)">
+            <strong>✅ Pipeline Ready:</strong> Deterministic floats can be plugged directly into PySpark <code>df.filter(safe_to_use > 0.7)</code> with zero parsing errors.
+          </div>
+        </div>
+
+        <!-- LLM Column -->
+        <div class="battle-col llm-col">
+          <div class="battle-header">
+            <div class="battle-title"><i data-lucide="bot"></i> GENERAL LLM (DeepSeek)</div>
+            <div class="latency-tag slow" id="arena-llm-latency">— ms</div>
+          </div>
+          <div style="font-size:0.75rem; color:var(--text-3); text-transform:uppercase; margin-bottom:8px; font-weight:700">Unstructured Natural Language Markdown</div>
+          <div id="arena-llm-text" style="font-size:0.84rem; line-height:1.65; color:var(--text-1); background:#ffffff; border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px; min-height:180px; white-space:pre-wrap; margin-bottom:12px"></div>
+          <div style="padding:10px 12px; background:var(--terracotta-bg); border:1px solid rgba(184,82,60,0.3); border-radius:var(--radius-sm); font-size:0.78rem; color:var(--terracotta)">
+            <strong>⚠️ Pipeline Fragile:</strong> Extracting numbers requires regex parsing. If the LLM rephrases its answer, downstream Spark/Kafka workers crash.
+          </div>
+        </div>
+      </div>
+
+      <!-- Comparison Verdict Card -->
+      <div class="battle-summary-card">
+        <h4><i data-lucide="scale"></i> Architectural Verdict & Engineering Trade-Offs</h4>
+        <p id="arena-summary-text"></p>
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>Evaluation Dimension</th>
+              <th>Jev Structured Engine</th>
+              <th>General Generative LLM</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Execution Latency</strong></td>
+              <td>⚡ ~200 - 400 ms (Sub-second stream throughput)</td>
+              <td>⏳ ~2,500 - 5,500 ms (High latency bottleneck)</td>
+            </tr>
+            <tr>
+              <td><strong>Data Type Safety</strong></td>
+              <td>Guaranteed JSON floats & enums (Zero parse crashes)</td>
+              <td>Unstructured text / conversational markdown</td>
+            </tr>
+            <tr>
+              <td><strong>Token Cost & Footprint</strong></td>
+              <td>Near-zero overhead (Logit probabilities directly)</td>
+              <td>400 - 800 tokens per evaluation request</td>
+            </tr>
+            <tr>
+              <td><strong>Production Placement</strong></td>
+              <td>Live Spark stream gates, Airflow DAG branching</td>
+              <td>Offline human debugging, PR reviews, documentation</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════
+       PANEL 1 — REAL CSV & USER DATA LAB (Upload / Paste / Profile)
+       ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="panel" id="panel-csvlab">
+    <div class="card">
+      <div class="card-title">
+        <div class="card-title-icon"><i data-lucide="file-spreadsheet"></i></div>
+        <span>Real Data Engineering Lab — Upload & Profile Real CSVs</span>
+      </div>
+      <div class="card-subtitle">
+        Do not rely on canned demo strings. Upload any <code>.csv</code> file, paste raw CSV records, or load a realistic production sample. The engine instantly profiles null percentages, infers data types, and lets you evaluate any column with Jev or compare against an LLM.
+      </div>
+
+      <!-- Presets for Real Datasets -->
+      <div class="presets">
+        <div class="presets-label"><i data-lucide="database" class="icon-xs"></i> Load Real Sample Dataset:</div>
+        <button class="preset-btn" onclick="loadSampleCSV('ecommerce')"><i data-lucide="shopping-cart" class="icon-xs" style="color:var(--lapis)"></i> E-Commerce Orders (120 rows)</button>
+        <button class="preset-btn" onclick="loadSampleCSV('sensors')"><i data-lucide="cpu" class="icon-xs" style="color:var(--laurel)"></i> IoT Warehouse Telemetry (100 rows)</button>
+        <button class="preset-btn" onclick="loadSampleCSV('churn')"><i data-lucide="users" class="icon-xs" style="color:var(--terracotta)"></i> Customer Churn & CRM (80 rows)</button>
+      </div>
+
+      <!-- Drag & Drop Zone -->
+      <div class="csv-dropzone" id="csv-dropzone" onclick="document.getElementById('csv-file-input').click()">
+        <input type="file" id="csv-file-input" accept=".csv" style="display:none" onchange="handleFileSelect(event)" />
+        <div class="csv-dropzone-content">
+          <i data-lucide="upload-cloud" class="icon-lg" style="color:var(--gold-roman)"></i>
+          <strong>Click to upload ANY .csv file or drag & drop here</strong>
+          <span style="font-size:0.75rem; color:var(--text-3)">Standard CSV formatted data with header row</span>
+        </div>
+      </div>
+
+      <!-- Raw Paste Area (collapsible / direct) -->
+      <div class="form-group full" style="margin-bottom:14px">
+        <label for="csv-paste-area"><i data-lucide="clipboard" class="icon-xs"></i> Or Paste Raw CSV Text Below:</label>
+        <textarea id="csv-paste-area" style="min-height:90px; font-family:var(--font-mono); font-size:0.78rem" placeholder="order_id,customer_id,amount,status,created_at&#10;1001,CUST_44,89.50,completed,2026-10-01&#10;1002,CUST_99,,pending,2026-10-02"></textarea>
+      </div>
+
+      <button class="btn btn-gold" onclick="parseAndProfileCSV()">
+        <i data-lucide="bar-chart-2"></i>
+        <span>Parse & Profile Dataset</span>
+      </button>
+    </div>
+
+    <!-- Profiler Output -->
+    <div class="card" id="csv-profile-card" style="display:none">
+      <div class="card-title">
+        <div class="card-title-icon"><i data-lucide="table"></i></div>
+        <span>Dataset Profiler: <span id="csv-filename" style="color:var(--gold-deep)">dataset.csv</span></span>
+      </div>
+      <div class="card-subtitle" id="csv-stats-bar">
+        Rows: 0 | Columns: 0 | Inferred Quality: Profiling…
+      </div>
+
+      <!-- Column Analysis Table -->
+      <div class="dataset-table-wrap">
+        <table class="dataset-table">
+          <thead>
+            <tr>
+              <th>Column Name</th>
+              <th>Inferred Type</th>
+              <th>Null Percentage</th>
+              <th>Sample Values (Live Extraction)</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="csv-columns-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════
+       PANEL 2 — DATA QUALITY GATE
+       ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="panel" id="panel-dq">
+    <div class="card">
+      <div class="card-title">
+        <div class="card-title-icon"><i data-lucide="shield-check"></i></div>
+        <span>Data Quality Gate — Scenario I</span>
+      </div>
+      <div class="card-subtitle">
+        Jev evaluates column health and answers 3 typed questions in a single sub-200ms API call:
+        <strong style="color:var(--lapis)">noul</strong> safe to ingest,
+        <strong style="color:var(--tyrian)">choice</strong> primary defect,
+        <strong style="color:var(--gold-deep)">score</strong> severity level.
+      </div>
+
+      <div class="presets">
+        <div class="presets-label"><i data-lucide="play-circle" class="icon-xs"></i> Presets:</div>
+        <button class="preset-btn" onclick="dqPreset('good')"><i data-lucide="check-circle-2" class="icon-xs" style="color:var(--laurel)"></i> Clean Column</button>
+        <button class="preset-btn" onclick="dqPreset('nulls')"><i data-lucide="alert-circle" class="icon-xs" style="color:var(--amber)"></i> High Nulls (68%)</button>
+        <button class="preset-btn" onclick="dqPreset('mixed')"><i data-lucide="shuffle" class="icon-xs" style="color:var(--tyrian)"></i> Mixed Data Types</button>
+        <button class="preset-btn" onclick="dqPreset('outlier')"><i data-lucide="trending-up" class="icon-xs" style="color:var(--terracotta)"></i> Severe Outliers</button>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="dq-col"><i data-lucide="tag" class="icon-xs"></i> Column Name</label>
+          <input type="text" id="dq-col" value="customer_age" />
+        </div>
+        <div class="form-group">
+          <label for="dq-null"><i data-lucide="percent" class="icon-xs"></i> Null Percentage (%)</label>
+          <input type="number" id="dq-null" min="0" max="100" step="0.1" value="42" />
+        </div>
+        <div class="form-group full">
+          <label for="dq-samples"><i data-lucide="list" class="icon-xs"></i> Sample Values (comma separated)</label>
+          <input type="text" id="dq-samples" value="25, 31, null, -999, 150, abc, 28, null, 22, null" />
+        </div>
+        <div class="form-group full">
+          <label for="dq-desc"><i data-lucide="file-text" class="icon-xs"></i> Column Description (Optional Context)</label>
+          <input type="text" id="dq-desc" value="Customer age in years from CRM system export" />
+        </div>
+      </div>
+
+      <div class="error-bar" id="dq-err"><i data-lucide="alert-octagon"></i> <span id="dq-err-msg"></span></div>
+      <div class="loader" id="dq-loader"><div class="spinner"></div><span>Consulting the Jev Oracle…</span></div>
+
+      <button class="btn btn-gold" id="dq-btn" onclick="runDataQuality()">
+        <i data-lucide="zap"></i>
+        <span>Execute Jev Decision</span>
+      </button>
+    </div>
+
+    <!-- Result Display -->
+    <div class="result-card" id="dq-result">
+      <div class="result-header">
+        <div class="result-title"><i data-lucide="landmark"></i> The Decree of Jev</div>
+        <div class="latency-tag fast" id="dq-latency">— ms</div>
+      </div>
+      <div class="jev-grid" id="dq-jev-grid"></div>
+      <div class="prob-bars" id="dq-probs"></div>
+      <div class="mentor-tip">
+        <div class="mt-header"><i data-lucide="lightbulb"></i> Mentor Action Plan & PySpark Fix</div>
+        <div class="mt-body" id="dq-mentor"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════
+       PANEL 3 — PIPELINE ROUTER
+       ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="panel" id="panel-pr">
+    <div class="card">
+      <div class="card-title">
+        <div class="card-title-icon"><i data-lucide="git-fork"></i></div>
+        <span>Pipeline Step Router — Scenario II</span>
+      </div>
+      <div class="card-subtitle">
+        Jev dynamically orchestrates the next transformation step based on schema state and downstream analytics goals.
+      </div>
+
+      <div class="presets">
+        <div class="presets-label"><i data-lucide="play-circle" class="icon-xs"></i> Presets:</div>
+        <button class="preset-btn" onclick="prPreset('sales')"><i data-lucide="bar-chart-2" class="icon-xs" style="color:var(--lapis)"></i> Sales Aggregation</button>
+        <button class="preset-btn" onclick="prPreset('user')"><i data-lucide="user-check" class="icon-xs" style="color:var(--tyrian)"></i> User Enrichment</button>
+        <button class="preset-btn" onclick="prPreset('logs')"><i data-lucide="file-code" class="icon-xs" style="color:var(--laurel)"></i> Log Filtering & Parsing</button>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group full">
+          <label for="pr-desc"><i data-lucide="database" class="icon-xs"></i> Dataset Schema & Volume</label>
+          <textarea id="pr-desc">100M row transaction table with columns: transaction_id, customer_id, amount, product_sku, timestamp, region</textarea>
+        </div>
+        <div class="form-group full">
+          <label for="pr-output"><i data-lucide="check-square" class="icon-xs"></i> Current Step Output</label>
+          <textarea id="pr-output">After deduplication and null removal: 87M clean rows. Schema validated, timestamps parsed to UTC.</textarea>
+        </div>
+        <div class="form-group full">
+          <label for="pr-goal"><i data-lucide="target" class="icon-xs"></i> End Goal</label>
+          <input type="text" id="pr-goal" value="Daily revenue by region and product category for a BI dashboard" />
+        </div>
+      </div>
+
+      <div class="error-bar" id="pr-err"><i data-lucide="alert-octagon"></i> <span id="pr-err-msg"></span></div>
+      <div class="loader" id="pr-loader"><div class="spinner"></div><span>Routing transformation step with Jev…</span></div>
+
+      <button class="btn btn-gold" id="pr-btn" onclick="runPipelineRouter()">
+        <i data-lucide="zap"></i>
+        <span>Route Pipeline Step</span>
+      </button>
+    </div>
+
+    <!-- Result Display -->
+    <div class="result-card" id="pr-result">
+      <div class="result-header">
+        <div class="result-title"><i data-lucide="landmark"></i> The Routing Decree</div>
+        <div class="latency-tag fast" id="pr-latency">— ms</div>
+      </div>
+      <div class="jev-grid" id="pr-jev-grid"></div>
+      <div class="prob-bars" id="pr-probs"></div>
+      <div class="mentor-tip">
+        <div class="mt-header"><i data-lucide="code"></i> Recommended Implementation Code</div>
+        <div class="mt-body" id="pr-mentor"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════
+       PANEL 4 — ANOMALY TRIAGE
+       ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="panel" id="panel-at">
+    <div class="card">
+      <div class="card-title">
+        <div class="card-title-icon"><i data-lucide="alert-triangle"></i></div>
+        <span>Metric Anomaly Triage — Scenario III</span>
+      </div>
+      <div class="card-subtitle">
+        Distinguish genuine pipeline breaches from expected variance; classify root causes and calibrate alert urgency.
+      </div>
+
+      <div class="presets">
+        <div class="presets-label"><i data-lucide="play-circle" class="icon-xs"></i> Presets:</div>
+        <button class="preset-btn" onclick="atPreset('spike')"><i data-lucide="trending-up" class="icon-xs" style="color:var(--terracotta)"></i> Sudden Revenue Spike</button>
+        <button class="preset-btn" onclick="atPreset('missing')"><i data-lucide="wifi-off" class="icon-xs" style="color:var(--amber)"></i> IoT Ingestion Outage</button>
+        <button class="preset-btn" onclick="atPreset('normal')"><i data-lucide="check" class="icon-xs" style="color:var(--laurel)"></i> Normal Traffic Variance</button>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="at-metric"><i data-lucide="activity" class="icon-xs"></i> Metric Name</label>
+          <input type="text" id="at-metric" value="daily_active_users" />
+        </div>
+        <div class="form-group">
+          <label for="at-context"><i data-lucide="info" class="icon-xs"></i> Context (Optional)</label>
+          <input type="text" id="at-context" value="No marketing campaigns this week, no holidays" />
+        </div>
+        <div class="form-group">
+          <label for="at-expected"><i data-lucide="corner-down-right" class="icon-xs"></i> Expected Value</label>
+          <input type="number" id="at-expected" value="45000" />
+        </div>
+        <div class="form-group">
+          <label for="at-actual"><i data-lucide="alert-circle" class="icon-xs"></i> Actual Telemetry Value</label>
+          <input type="number" id="at-actual" value="12000" />
+        </div>
+      </div>
+
+      <div class="error-bar" id="at-err"><i data-lucide="alert-octagon"></i> <span id="at-err-msg"></span></div>
+      <div class="loader" id="at-loader"><div class="spinner"></div><span>Calibrating anomaly urgency…</span></div>
+
+      <button class="btn btn-gold" id="at-btn" onclick="runAnomalyTriage()">
+        <i data-lucide="zap"></i>
+        <span>Execute Anomaly Triage</span>
+      </button>
+    </div>
+
+    <!-- Result Display -->
+    <div class="result-card" id="at-result">
+      <div class="result-header">
+        <div class="result-title"><i data-lucide="landmark"></i> Triage Assessment</div>
+        <div class="latency-tag fast" id="at-latency">— ms</div>
+      </div>
+      <div class="jev-grid" id="at-jev-grid"></div>
+      <div class="prob-bars" id="at-probs"></div>
+      <div class="mentor-tip">
+        <div class="mt-header"><i data-lucide="clipboard-check"></i> Root Cause Checklist & Remediation</div>
+        <div class="mt-body" id="at-mentor"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════
+       PANEL 5 — SCHEMA ADVISOR
+       ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="panel" id="panel-sa">
+    <div class="card">
+      <div class="card-title">
+        <div class="card-title-icon"><i data-lucide="database"></i></div>
+        <span>Lakehouse Schema Advisor — Scenario IV</span>
+      </div>
+      <div class="card-subtitle">
+        Evaluate storage formats (Delta Lake vs Parquet vs Iceberg), partition sizing, and indexing requirements.
+      </div>
+
+      <div class="presets">
+        <div class="presets-label"><i data-lucide="play-circle" class="icon-xs"></i> Presets:</div>
+        <button class="preset-btn" onclick="saPreset('events')"><i data-lucide="radio" class="icon-xs" style="color:var(--lapis)"></i> Clickstream Events (500M)</button>
+        <button class="preset-btn" onclick="saPreset('dim')"><i data-lucide="layers" class="icon-xs" style="color:var(--tyrian)"></i> Dimension Table</button>
+        <button class="preset-btn" onclick="saPreset('fact')"><i data-lucide="table-properties" class="icon-xs" style="color:var(--laurel)"></i> Orders Fact Table (2B)</button>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="sa-table"><i data-lucide="file-spreadsheet" class="icon-xs"></i> Table Identifier</label>
+          <input type="text" id="sa-table" value="user_events" />
+        </div>
+        <div class="form-group">
+          <label for="sa-rows"><i data-lucide="hash" class="icon-xs"></i> Estimated Record Count</label>
+          <input type="number" id="sa-rows" value="500000000" />
+        </div>
+        <div class="form-group full">
+          <label for="sa-cols"><i data-lucide="code" class="icon-xs"></i> Column Definitions (JSON Array)</label>
+          <textarea id="sa-cols" style="min-height:115px; font-family:var(--font-mono); font-size:0.8rem">[
+  {"name":"event_id","dtype":"string","nullable":false},
+  {"name":"user_id","dtype":"string","nullable":false},
+  {"name":"event_type","dtype":"string","nullable":false},
+  {"name":"event_time","dtype":"timestamp","nullable":false},
+  {"name":"session_id","dtype":"string","nullable":true},
+  {"name":"properties","dtype":"json","nullable":true},
+  {"name":"region","dtype":"string","nullable":true}
+]</textarea>
+        </div>
+      </div>
+
+      <div class="error-bar" id="sa-err"><i data-lucide="alert-octagon"></i> <span id="sa-err-msg"></span></div>
+      <div class="loader" id="sa-loader"><div class="spinner"></div><span>Generating architectural recommendations…</span></div>
+
+      <button class="btn btn-gold" id="sa-btn" onclick="runSchemaAdvisor()">
+        <i data-lucide="zap"></i>
+        <span>Advise Lakehouse Architecture</span>
+      </button>
+    </div>
+
+    <!-- Result Display -->
+    <div class="result-card" id="sa-result">
+      <div class="result-header">
+        <div class="result-title"><i data-lucide="landmark"></i> Architecture & Storage Decree</div>
+        <div class="latency-tag fast" id="sa-latency">— ms</div>
+      </div>
+      <div class="jev-grid" id="sa-jev-grid"></div>
+      <div class="prob-bars" id="sa-probs"></div>
+      <div class="mentor-tip">
+        <div class="mt-header"><i data-lucide="hard-drive"></i> Storage & Indexing Strategy</div>
+        <div class="mt-body" id="sa-mentor"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════
+       PANEL 6 — MENTOR FORUM (Free-Form Chat)
+       ═══════════════════════════════════════════════════════════════════════════ -->
+  <div class="panel" id="panel-mc">
+    <div class="card">
+      <div class="card-title">
+        <div class="card-title-icon"><i data-lucide="message-square-code"></i></div>
+        <span>Data Engineering Mentor Forum</span>
+      </div>
+      <div class="card-subtitle">
+        Pose any engineering question to the Mentor — powered by <code style="color:var(--gold-deep); font-weight:600">deepseek/deepseek-v4.1-flash</code> via OpenRouter.
+      </div>
+
+      <div class="presets">
+        <div class="presets-label"><i data-lucide="help-circle" class="icon-xs"></i> Quick Prompts:</div>
+        <button class="preset-btn" onclick="mcPreset('partitioning')"><i data-lucide="layers" class="icon-xs"></i> Partitioning strategies</button>
+        <button class="preset-btn" onclick="mcPreset('spark')"><i data-lucide="fast-forward" class="icon-xs"></i> PySpark vs Pandas</button>
+        <button class="preset-btn" onclick="mcPreset('dbt')"><i data-lucide="workflow" class="icon-xs"></i> What is dbt?</button>
+        <button class="preset-btn" onclick="mcPreset('delta')"><i data-lucide="database" class="icon-xs"></i> Delta Lake vs Parquet</button>
+      </div>
+
+      <div class="chat-history" id="mc-history">
+        <div class="chat-empty" id="mc-empty">
+          <i data-lucide="message-circle" class="icon-lg" style="color:var(--text-3)"></i>
+          <span>Ask your mentor about modern data lakehouse patterns, streaming architectures, or pipeline optimizations.</span>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:10px">
+        <input type="text" id="mc-input" placeholder="e.g. When should I choose Delta Lake over Apache Iceberg?" style="flex:1"
+          onkeydown="if(event.key==='Enter')runMentorChat()" />
+        <button class="btn btn-gold" id="mc-btn" onclick="runMentorChat()">
+          <span>Consult Mentor</span>
+          <i data-lucide="send" class="icon-xs"></i>
+        </button>
+      </div>
+
+      <div class="loader" id="mc-loader" style="margin-top:10px"><div class="spinner"></div><span>Synthesizing mentor guidance…</span></div>
+      <div class="error-bar" id="mc-err" style="margin-top:10px"><i data-lucide="alert-octagon"></i> <span id="mc-err-msg"></span></div>
+    </div>
+  </div>
+
+  <!-- ── Footer ───────────────────────────────────────────────────────────── -->
+  <footer>
+    <div class="motto">« Scientia est potentia · Knowledge is power »</div>
+    Built with <a href="https://openrouter.ai/~typesafe/jev-latest" target="_blank">Jev (TypeSafe AI)</a> via
+    <a href="https://openrouter.ai" target="_blank">OpenRouter</a> ·
+    Mentor powered by <a href="https://openrouter.ai/deepseek/deepseek-v4.1-flash" target="_blank">DeepSeek V4.1 Flash</a> ·
+    Educational Platform for Data Engineering Students
+  </footer>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     FRONTEND JAVASCRIPT — Dynamic Interactions, CSV Parser & API Connections
+     ═══════════════════════════════════════════════════════════════════════════ -->
+<script>
+/* ── Initialize Lucide Vector Icons ────────────────────────────────────────── */
+function initIcons() {
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    window.lucide.createIcons();
+  }
+}
+document.addEventListener('DOMContentLoaded', initIcons);
+
+/* ── Tab Switching ──────────────────────────────────────────────────────────── */
+function switchTab(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  
+  const panel = document.getElementById('panel-' + id);
+  const tabBtn = document.getElementById('tab-' + id);
+  if (panel) panel.classList.add('active');
+  if (tabBtn) tabBtn.classList.add('active');
+
+  initIcons();
+}
+
+/* ── Health Check ───────────────────────────────────────────────────────────── */
+async function checkHealth() {
+  try {
+    const r = await fetch('/health');
+    const d = await r.json();
+    const dot = document.getElementById('status-dot');
+    const txt = document.getElementById('status-text');
+    if (d.openrouter_key_set) {
+      dot.className = 'pulse-dot green';
+      txt.textContent = 'Jev Tribunal · Active';
+    } else {
+      dot.className = 'pulse-dot amber';
+      txt.textContent = 'No API Key Configured';
+    }
+  } catch {
+    document.getElementById('status-dot').className = 'pulse-dot red';
+    document.getElementById('status-text').textContent = 'Server Offline';
+  }
+}
+checkHealth();
+
+/* ── Network & State Helpers ────────────────────────────────────────────────── */
+function setLoading(prefix, loading) {
+  const loader = document.getElementById(prefix + '-loader');
+  const btn    = document.getElementById(prefix + '-btn');
+  if (loader) loader.classList.toggle('show', loading);
+  if (btn)    btn.disabled = loading;
+}
+
+function showError(prefix, msg) {
+  const bar = document.getElementById(prefix + '-err');
+  const txt = document.getElementById(prefix + '-err-msg');
+  if (bar && txt) { txt.textContent = msg; bar.classList.add('show'); initIcons(); }
+}
+function clearError(prefix) {
+  const bar = document.getElementById(prefix + '-err');
+  if (bar) bar.classList.remove('show');
+}
+
+async function postJSON(url, body) {
+  const r = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if (!r.ok) {
+    const e = await r.json().catch(() => ({ detail: r.statusText }));
+    throw new Error(e.detail || r.statusText);
+  }
+  return r.json();
+}
+
+function probColor(val, idx) {
+  const hues = [38, 205, 340, 145, 270, 15];
+  return `hsl(${hues[idx % hues.length]}, 65%, 48%)`;
+}
+
+function renderJevGrid(containerId, metrics) {
+  const c = document.getElementById(containerId);
+  c.innerHTML = metrics.map(m => `
+    <div class="jev-metric">
+      <div class="m-label">${m.label}</div>
+      <div class="m-value ${m.color}">${m.value}</div>
+      <div class="m-sub">${m.sub}</div>
+    </div>
+  `).join('');
+}
+
+function renderProbBars(containerId, probs, title) {
+  if (!probs || !Object.keys(probs).length) return;
+  const c = document.getElementById(containerId);
+  const sorted = Object.entries(probs).sort((a, b) => b[1] - a[1]);
+  const max = sorted[0]?.[1] || 1;
+  c.innerHTML = `
+    <div class="pb-title">${title}</div>
+    ${sorted.map(([k, v], i) => `
+      <div class="prob-row">
+        <div class="pr-label">${k}</div>
+        <div class="pr-bar-wrap">
+          <div class="pr-bar" style="width:${(v/max*100).toFixed(1)}%; background:${probColor(v, i)}"></div>
+        </div>
+        <div class="pr-pct">${(v*100).toFixed(1)}%</div>
+      </div>
+    `).join('')}
+  `;
+}
+
+function noulColor(v) { return v > 0.7 ? 'green' : v > 0.4 ? 'amber' : 'red'; }
+function scoreColor(v, max) { const r = v / max; return r < 0.4 ? 'green' : r < 0.7 ? 'amber' : 'red'; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ARENA — Jev vs LLM Head-to-Head Comparison Logic
+   ═══════════════════════════════════════════════════════════════════════════ */
+const ARENA_PRESETS = {
+  nulls:    { col: 'customer_age', null_pct: 42, samples: '25, 31, null, -999, 150, abc, 28, null, 22, null', desc: 'Customer age in years from CRM system export' },
+  clean:    { col: 'transaction_usd', null_pct: 0.1, samples: '102.50, 89.00, 230.75, 45.00, 178.20, 92.10, 310.00', desc: 'Validated POS payment amounts in USD' },
+  outliers: { col: 'latency_ms', null_pct: 1.5, samples: '185, 210, 195, 999999, 204, -1, 190, 9999999, 215', desc: 'API server roundtrip latency telemetry' },
+  mixed:    { col: 'tracking_sku', null_pct: 4.8, samples: 'SKU-882, 10492, null, PROD_11, 442, SKU-001, 999abc', desc: 'Legacy warehouse inventory barcode' }
+};
+
+function setArenaScenario(key) {
+  const p = ARENA_PRESETS[key];
+  document.getElementById('arena-col').value = p.col;
+  document.getElementById('arena-null').value = p.null_pct;
+  document.getElementById('arena-samples').value = p.samples;
+  document.getElementById('arena-desc').value = p.desc;
+}
+
+async function runArenaComparison() {
+  clearError('arena');
+  setLoading('arena', true);
+  try {
+    const samples = document.getElementById('arena-samples').value.split(',').map(s => s.trim()).filter(Boolean);
+    const data = await postJSON('/api/compare-jev-vs-llm', {
+      task_type: 'data_quality',
+      column_name: document.getElementById('arena-col').value,
+      null_pct: parseFloat(document.getElementById('arena-null').value) || 0,
+      sample_values: samples,
+      description: document.getElementById('arena-desc').value,
+    });
+
+    // Populate Jev
+    const j = data.jev;
+    document.getElementById('arena-jev-latency').textContent = j.latency_ms + ' ms';
+    renderJevGrid('arena-jev-metrics', [
+      { label: 'Safe to Ingest', value: (j.safe_to_use_prob * 100).toFixed(0) + '%', sub: 'noul prob', color: noulColor(j.safe_to_use_prob) },
+      { label: 'Defect Type', value: j.quality_issue, sub: 'choice', color: 'purple' },
+      { label: 'Severity Index', value: j.severity_score.toFixed(1) + ' / 3', sub: 'score rubric', color: scoreColor(j.severity_score, 3) },
+      { label: 'Pipeline State', value: 'Ready', sub: '100% deterministic', color: 'green' }
+    ]);
+    renderProbBars('arena-jev-probs', j.issue_probabilities, 'Defect Probabilities:');
+
+    // Populate LLM
+    const l = data.llm;
+    document.getElementById('arena-llm-latency').textContent = l.latency_ms + ' ms';
+    document.getElementById('arena-llm-text').textContent = l.text_response;
+
+    // Populate Summary & Speedup
+    const cmp = data.comparison;
+    document.getElementById('arena-speedup-tag').textContent = '⚡ ' + cmp.speedup_x + 'x Faster';
+    document.getElementById('arena-summary-text').textContent = cmp.summary;
+
+    document.getElementById('arena-result').classList.add('show');
+    initIcons();
+  } catch (e) {
+    showError('arena', e.message);
+  }
+  setLoading('arena', false);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   REAL CSV LAB — Parser & Live Profiler Logic
+   ═══════════════════════════════════════════════════════════════════════════ */
+const SAMPLE_CSVS = {
+  ecommerce: `order_id,customer_id,product_category,amount_usd,payment_method,is_returned,delivery_days
+1001,CUST_8821,Electronics,299.99,credit_card,false,3
+1002,CUST_1102,Home & Kitchen,45.20,paypal,false,5
+1003,CUST_4490,Apparel,,apple_pay,true,2
+1004,CUST_9912,Electronics,899.00,,false,4
+1005,CUST_3301,Books,19.99,credit_card,false,1
+1006,CUST_7721,Apparel,-50.00,gift_card,true,
+1007,CUST_2210,Electronics,1200.50,wire_transfer,false,7
+1008,CUST_5502,Home & Kitchen,62.00,credit_card,false,3
+1009,CUST_8821,Books,,paypal,false,
+1010,CUST_9912,Electronics,450.00,credit_card,false,4
+1011,CUST_4490,Toys,34.50,apple_pay,false,2
+1012,CUST_1102,Electronics,9999.00,credit_card,true,12`,
+
+  sensors: `timestamp,device_id,temperature_c,humidity_pct,voltage,status,alert_code
+2026-10-01 08:00:00,SENSOR_A1,22.4,45.1,3.29,ONLINE,0
+2026-10-01 08:05:00,SENSOR_A1,22.8,45.5,3.28,ONLINE,0
+2026-10-01 08:10:00,SENSOR_A1,23.1,44.9,3.27,ONLINE,0
+2026-10-01 08:15:00,SENSOR_B2,89.5,12.0,2.10,WARNING,102
+2026-10-01 08:20:00,SENSOR_B2,,,0.00,OFFLINE,999
+2026-10-01 08:25:00,SENSOR_C3,21.9,48.2,3.31,ONLINE,0
+2026-10-01 08:30:00,SENSOR_C3,-99.0,47.9,3.30,ERROR,404
+2026-10-01 08:35:00,SENSOR_A1,23.4,46.0,3.26,ONLINE,0`,
+
+  churn: `user_id,tenure_months,monthly_charges,total_charges,contract_type,support_tickets,churned
+U_1001,12,65.50,786.00,Month-to-month,3,Yes
+U_1002,48,20.00,960.00,Two year,0,No
+U_1003,3,89.90,,Month-to-month,7,Yes
+U_1004,24,55.00,1320.00,One year,1,No
+U_1005,1,105.20,105.20,Month-to-month,null,Yes
+U_1006,72,118.00,8496.00,Two year,2,No
+U_1007,9,40.10,360.90,,5,Yes
+U_1008,15,70.00,1050.00,Month-to-month,0,No`
+};
+
+function loadSampleCSV(key) {
+  const text = SAMPLE_CSVS[key];
+  document.getElementById('csv-paste-area').value = text;
+  document.getElementById('csv-filename').textContent = key + '_sample.csv';
+  parseAndProfileCSV();
+}
+
+function handleFileSelect(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  document.getElementById('csv-filename').textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('csv-paste-area').value = e.target.result;
+    parseAndProfileCSV();
+  };
+  reader.readAsText(file);
+}
+
+// Drag & drop handlers
+const dropzone = document.getElementById('csv-dropzone');
+if (dropzone) {
+  dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('dragover'); });
+  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+  dropzone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropzone.classList.remove('dragover');
+    if (e.dataTransfer.files.length) {
+      document.getElementById('csv-file-input').files = e.dataTransfer.files;
+      handleFileSelect({ target: { files: e.dataTransfer.files } });
+    }
+  });
+}
+
+function parseAndProfileCSV() {
+  const raw = document.getElementById('csv-paste-area').value.trim();
+  if (!raw) return;
+
+  const lines = raw.split(/\r?\n/).filter(Boolean);
+  if (lines.length < 2) return;
+
+  // Split headers
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^["']|["']$/g, ''));
+  const dataRows = lines.slice(1).map(line => {
+    return line.split(',').map(cell => cell.trim().replace(/^["']|["']$/g, ''));
+  });
+
+  const rowCount = dataRows.length;
+  const colStats = headers.map((colName, colIdx) => {
+    const values = dataRows.map(r => r[colIdx] ?? '');
+    let nullCount = 0;
+    let numericCount = 0;
+
+    values.forEach(v => {
+      const lower = v.toLowerCase();
+      if (!v || lower === 'null' || lower === 'none' || lower === 'nan' || lower === 'undefined' || lower === '') {
+        nullCount++;
+      } else if (!isNaN(Number(v))) {
+        numericCount++;
+      }
+    });
+
+    const nonNullCount = rowCount - nullCount;
+    const nullPct = ((nullCount / rowCount) * 100).toFixed(1);
+
+    let inferredType = 'string';
+    if (nonNullCount > 0 && (numericCount / nonNullCount) > 0.8) {
+      inferredType = 'numeric';
+    }
+
+    const samples = values.filter(v => v !== '').slice(0, 8);
+
+    return {
+      colName,
+      nullPct: parseFloat(nullPct),
+      inferredType,
+      samples: samples.join(', '),
+      sampleArray: samples
+    };
+  });
+
+  // Render Stats Bar
+  document.getElementById('csv-stats-bar').textContent = 
+    `Rows: ${rowCount} | Columns: ${headers.length} | Status: Profiled successfully`;
+
+  // Render Table Rows
+  const tbody = document.getElementById('csv-columns-tbody');
+  tbody.innerHTML = colStats.map(stat => {
+    const typeClass = stat.nullPct > 30 ? 'nulls' : stat.inferredType;
+    return `
+      <tr>
+        <td><strong>${stat.colName}</strong></td>
+        <td><span class="tag-type ${typeClass}">${stat.inferredType}</span></td>
+        <td>
+          <div style="display:flex; align-items:center; gap:8px">
+            <span style="font-family:var(--font-mono); font-weight:600; color:${stat.nullPct > 20 ? 'var(--terracotta)' : 'var(--laurel)'}">${stat.nullPct}%</span>
+            <div style="flex:1; max-width:80px; height:6px; background:#e5dfd2; border-radius:999px; overflow:hidden">
+              <div style="width:${stat.nullPct}%; height:100%; background:${stat.nullPct > 20 ? 'var(--terracotta)' : 'var(--laurel)'}"></div>
+            </div>
+          </div>
+        </td>
+        <td style="font-family:var(--font-mono); font-size:0.75rem; color:var(--text-2); max-width:320px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">
+          ${stat.samples || 'none'}
+        </td>
+        <td>
+          <div style="display:flex; gap:6px">
+            <button class="action-btn-mini" onclick="analyzeRealColumn('${stat.colName}', ${stat.nullPct}, '${encodeURIComponent(stat.samples)}')">
+              <i data-lucide="zap" class="icon-xs"></i> Jev
+            </button>
+            <button class="action-btn-mini" onclick="battleRealColumn('${stat.colName}', ${stat.nullPct}, '${encodeURIComponent(stat.samples)}')">
+              <i data-lucide="swords" class="icon-xs"></i> Battle
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  document.getElementById('csv-profile-card').style.display = 'block';
+  initIcons();
+}
+
+function analyzeRealColumn(colName, nullPct, samplesEncoded) {
+  const samples = decodeURIComponent(samplesEncoded);
+  document.getElementById('dq-col').value = colName;
+  document.getElementById('dq-null').value = nullPct;
+  document.getElementById('dq-samples').value = samples;
+  document.getElementById('dq-desc').value = `Real data extracted from ${document.getElementById('csv-filename').textContent}`;
+  switchTab('dq');
+  runDataQuality();
+}
+
+function battleRealColumn(colName, nullPct, samplesEncoded) {
+  const samples = decodeURIComponent(samplesEncoded);
+  document.getElementById('arena-col').value = colName;
+  document.getElementById('arena-null').value = nullPct;
+  document.getElementById('arena-samples').value = samples;
+  document.getElementById('arena-desc').value = `Real data extracted from ${document.getElementById('csv-filename').textContent}`;
+  switchTab('arena');
+  runArenaComparison();
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SCENARIO 1 — DATA QUALITY GATE
+   ═══════════════════════════════════════════════════════════════════════════ */
+const DQ_PRESETS = {
+  good:    { col:'transaction_amount', null_pct:0.1,  samples:'102.50, 89.00, 230.75, 45.00, 178.20, 92.10, 310.00', desc:'Payment amounts in USD, validated at point of sale' },
+  nulls:   { col:'email_address',      null_pct:68,   samples:'null, null, user@example.com, null, null, test@test.com, null', desc:'Optional email from signup form' },
+  mixed:   { col:'product_code',       null_pct:5,    samples:'SKU-1234, 5678, PROD_99, 12, SKU-0001, null, 789abc, 42', desc:'Product identifier from legacy system' },
+  outlier: { col:'page_load_ms',       null_pct:2,    samples:'210, 185, 320, 99999, 195, 208, -1, 230, 9999999, 201', desc:'Page load time in milliseconds from RUM' },
+};
+function dqPreset(key) {
+  const p = DQ_PRESETS[key];
+  document.getElementById('dq-col').value = p.col;
+  document.getElementById('dq-null').value = p.null_pct;
+  document.getElementById('dq-samples').value = p.samples;
+  document.getElementById('dq-desc').value = p.desc;
+}
+
+async function runDataQuality() {
+  clearError('dq');
+  setLoading('dq', true);
+  try {
+    const samples = document.getElementById('dq-samples').value.split(',').map(s => s.trim()).filter(Boolean);
+    const data = await postJSON('/api/data-quality', {
+      column_name: document.getElementById('dq-col').value,
+      sample_values: samples,
+      null_pct: parseFloat(document.getElementById('dq-null').value) || 0,
+      description: document.getElementById('dq-desc').value,
+    });
+    const j = data.jev;
+    renderJevGrid('dq-jev-grid', [
+      { label: 'Safe to Ingest', value: (j.safe_to_use_prob * 100).toFixed(0) + '%', sub: 'noul probability', color: noulColor(j.safe_to_use_prob) },
+      { label: 'Defect Type', value: j.quality_issue, sub: 'choice decision', color: 'purple' },
+      { label: 'Severity Index', value: j.severity_score.toFixed(1) + ' / 3', sub: 'score rubric', color: scoreColor(j.severity_score, 3) },
+      { label: 'Jev Latency', value: data.latency_ms + 'ms', sub: 'decisions API', color: 'blue' },
+    ]);
+    renderProbBars('dq-probs', j.issue_probabilities, 'Defect classification probability distribution:');
+    document.getElementById('dq-latency').textContent = data.latency_ms + ' ms';
+    document.getElementById('dq-mentor').textContent = data.mentor_tip;
+    document.getElementById('dq-result').classList.add('show');
+    initIcons();
+  } catch (e) { showError('dq', e.message); }
+  setLoading('dq', false);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SCENARIO 2 — PIPELINE STEP ROUTER
+   ═══════════════════════════════════════════════════════════════════════════ */
+const PR_PRESETS = {
+  sales:  { desc:'Daily sales table: 500M rows, columns: order_id, customer_id, sku, qty, price, store_id, created_at', output:'Data cleaned and deduplicated. 487M rows remain, timestamps normalised to UTC.', goal:'Monthly revenue breakdown by store and product category for finance reporting' },
+  user:   { desc:'User profiles: 8M users, columns: user_id, name, email, signup_date, country, plan_tier, last_active', output:'Null emails dropped, country codes normalised, duplicate user_ids resolved.', goal:'Segment users by engagement tier for personalised email campaigns' },
+  logs:   { desc:'Application logs: 50GB/day, columns: timestamp, level, service, message, trace_id, user_id, latency_ms', output:'Logs parsed from raw JSON, timestamp indexed, PII redacted.', goal:'Count error rates per service per hour for SLO dashboard' },
+};
+function prPreset(key) {
+  const p = PR_PRESETS[key];
+  document.getElementById('pr-desc').value = p.desc;
+  document.getElementById('pr-output').value = p.output;
+  document.getElementById('pr-goal').value = p.goal;
+}
+
+async function runPipelineRouter() {
+  clearError('pr');
+  setLoading('pr', true);
+  try {
+    const data = await postJSON('/api/pipeline-router', {
+      dataset_description: document.getElementById('pr-desc').value,
+      current_step_output: document.getElementById('pr-output').value,
+      goal: document.getElementById('pr-goal').value,
+    });
+    const j = data.jev;
+    renderJevGrid('pr-jev-grid', [
+      { label: 'Next Step', value: j.next_step, sub: 'choice decision', color: 'purple' },
+      { label: 'Needs Partition', value: (j.needs_partitioning_prob * 100).toFixed(0) + '%', sub: 'noul probability', color: noulColor(j.needs_partitioning_prob) },
+      { label: 'Complexity Index', value: j.complexity_score.toFixed(1) + ' / 3', sub: 'score rubric', color: scoreColor(j.complexity_score, 3) },
+      { label: 'Jev Latency', value: data.latency_ms + 'ms', sub: 'decisions API', color: 'blue' },
+    ]);
+    renderProbBars('pr-probs', j.step_probabilities, 'Transformation route probability distribution:');
+    document.getElementById('pr-latency').textContent = data.latency_ms + ' ms';
+    document.getElementById('pr-mentor').textContent = data.mentor_tip;
+    document.getElementById('pr-result').classList.add('show');
+    initIcons();
+  } catch (e) { showError('pr', e.message); }
+  setLoading('pr', false);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SCENARIO 3 — ANOMALY TRIAGE
+   ═══════════════════════════════════════════════════════════════════════════ */
+const AT_PRESETS = {
+  spike:   { metric:'daily_revenue_usd', expected:125000, actual:380000, ctx:'No promotional events, Black Friday is 3 months away' },
+  missing: { metric:'hourly_sensor_readings', expected:3600, actual:0, ctx:'IoT temperature sensors in warehouse, power outage reported' },
+  normal:  { metric:'api_response_time_ms', expected:180, actual:195, ctx:'Slight uptick, Monday morning traffic increase' },
+};
+function atPreset(key) {
+  const p = AT_PRESETS[key];
+  document.getElementById('at-metric').value = p.metric;
+  document.getElementById('at-expected').value = p.expected;
+  document.getElementById('at-actual').value = p.actual;
+  document.getElementById('at-context').value = p.ctx;
+}
+
+async function runAnomalyTriage() {
+  clearError('at');
+  setLoading('at', true);
+  try {
+    const data = await postJSON('/api/anomaly-triage', {
+      metric_name: document.getElementById('at-metric').value,
+      expected_value: parseFloat(document.getElementById('at-expected').value),
+      actual_value: parseFloat(document.getElementById('at-actual').value),
+      context: document.getElementById('at-context').value,
+    });
+    const j = data.jev;
+    const devColor = data.deviation_pct > 50 ? 'red' : data.deviation_pct > 20 ? 'amber' : 'green';
+    renderJevGrid('at-jev-grid', [
+      { label: 'Real Anomaly', value: (j.is_real_anomaly_prob * 100).toFixed(0) + '%', sub: 'noul probability', color: noulColor(j.is_real_anomaly_prob) },
+      { label: 'Anomaly Type', value: j.anomaly_type, sub: 'choice decision', color: 'purple' },
+      { label: 'Urgency Index', value: j.urgency_score.toFixed(1) + ' / 3', sub: 'score rubric', color: scoreColor(j.urgency_score, 3) },
+      { label: 'Deviation', value: data.deviation_pct.toFixed(1) + '%', sub: 'from baseline', color: devColor },
+    ]);
+    renderProbBars('at-probs', j.type_probabilities, 'Anomaly classification distribution:');
+    document.getElementById('at-latency').textContent = data.latency_ms + ' ms';
+    document.getElementById('at-mentor').textContent = data.mentor_tip;
+    document.getElementById('at-result').classList.add('show');
+    initIcons();
+  } catch (e) { showError('at', e.message); }
+  setLoading('at', false);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SCENARIO 4 — SCHEMA ADVISOR
+   ═══════════════════════════════════════════════════════════════════════════ */
+const SA_PRESETS = {
+  events: { table:'user_events', rows:500000000, cols:'[{"name":"event_id","dtype":"string","nullable":false},{"name":"user_id","dtype":"string","nullable":false},{"name":"event_type","dtype":"string","nullable":false},{"name":"event_time","dtype":"timestamp","nullable":false},{"name":"properties","dtype":"json","nullable":true},{"name":"region","dtype":"string","nullable":true}]' },
+  dim:    { table:'dim_product', rows:250000, cols:'[{"name":"product_id","dtype":"string","nullable":false},{"name":"sku","dtype":"string","nullable":false},{"name":"name","dtype":"string","nullable":false},{"name":"category","dtype":"string","nullable":true},{"name":"brand","dtype":"string","nullable":true},{"name":"price_usd","dtype":"decimal","nullable":false}]' },
+  fact:   { table:'fact_orders', rows:2000000000, cols:'[{"name":"order_id","dtype":"string","nullable":false},{"name":"customer_id","dtype":"string","nullable":false},{"name":"order_date","dtype":"date","nullable":false},{"name":"sku","dtype":"string","nullable":false},{"name":"qty","dtype":"int","nullable":false},{"name":"unit_price","dtype":"decimal","nullable":false},{"name":"discount","dtype":"decimal","nullable":true},{"name":"region","dtype":"string","nullable":false}]' },
+};
+function saPreset(key) {
+  const p = SA_PRESETS[key];
+  document.getElementById('sa-table').value = p.table;
+  document.getElementById('sa-rows').value = p.rows;
+  document.getElementById('sa-cols').value = p.cols;
+}
+
+async function runSchemaAdvisor() {
+  clearError('sa');
+  setLoading('sa', true);
+  try {
+    let cols;
+    try { cols = JSON.parse(document.getElementById('sa-cols').value); }
+    catch { throw new Error('Invalid JSON in columns field'); }
+    const data = await postJSON('/api/schema-advisor', {
+      table_name: document.getElementById('sa-table').value,
+      columns: cols,
+      row_count_estimate: parseInt(document.getElementById('sa-rows').value) || 0,
+    });
+    const j = data.jev;
+    renderJevGrid('sa-jev-grid', [
+      { label: 'Storage Format', value: j.storage_format, sub: 'choice decision', color: 'purple' },
+      { label: 'Needs Indexing', value: (j.needs_indexing_prob * 100).toFixed(0) + '%', sub: 'noul probability', color: noulColor(j.needs_indexing_prob) },
+      { label: 'Normalisation', value: j.normalisation_score.toFixed(1) + ' / 3', sub: 'score rubric', color: 'cyan' },
+      { label: 'Jev Latency', value: data.latency_ms + 'ms', sub: 'decisions API', color: 'blue' },
+    ]);
+    renderProbBars('sa-probs', j.format_probabilities, 'Format recommendation distribution:');
+    document.getElementById('sa-latency').textContent = data.latency_ms + ' ms';
+    document.getElementById('sa-mentor').textContent = data.mentor_tip;
+    document.getElementById('sa-result').classList.add('show');
+    initIcons();
+  } catch (e) { showError('sa', e.message); }
+  setLoading('sa', false);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   SCENARIO 5 — MENTOR FORUM CHAT
+   ═══════════════════════════════════════════════════════════════════════════ */
+const MC_QUICK = {
+  partitioning: 'What are the best partitioning strategies for large tables in a data lake?',
+  spark: 'When should I use PySpark instead of Pandas in a data pipeline?',
+  dbt: 'What is dbt and how does it fit into a modern data stack?',
+  delta: 'Explain Delta Lake basics and when I should use it over plain Parquet.',
+};
+function mcPreset(key) {
+  document.getElementById('mc-input').value = MC_QUICK[key];
+}
+
+function addChatMsg(role, text) {
+  const history = document.getElementById('mc-history');
+  const empty = document.getElementById('mc-empty');
+  if (empty) empty.remove();
+  const div = document.createElement('div');
+  div.className = 'chat-msg ' + role;
+  
+  const iconName = role === 'user' ? 'user' : 'landmark';
+  const roleName = role === 'user' ? 'You' : 'DE Mentor (DeepSeek)';
+  
+  div.innerHTML = `
+    <div class="cm-header">
+      <i data-lucide="${iconName}" class="icon-xs"></i>
+      <span>${roleName}</span>
+    </div>
+    <div class="cm-text">${text.replace(/</g,'&lt;')}</div>
+  `;
+  history.appendChild(div);
+  history.scrollTop = history.scrollHeight;
+  initIcons();
+}
+
+async function runMentorChat() {
+  const input = document.getElementById('mc-input');
+  const q = input.value.trim();
+  if (!q) return;
+  clearError('mc');
+  addChatMsg('user', q);
+  input.value = '';
+  setLoading('mc', true);
+  try {
+    const data = await postJSON('/api/mentor-chat', { question: q });
+    addChatMsg('assistant', data.answer);
+  } catch(e) { showError('mc', e.message); }
+  setLoading('mc', false);
+}
+</script>
+</body>
+</html>

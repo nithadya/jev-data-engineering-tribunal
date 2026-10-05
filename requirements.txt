@@ -1,0 +1,19 @@
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║  requirements.txt — Python Dependencies                                   ║
+# ║  ─────────────────────────────────────────────────────────────────────────  ║
+# ║  Install: pip install -r requirements.txt                                  ║
+# ║                                                                            ║
+# ║  Package overview:                                                         ║
+# ║  - fastapi: Web framework used to define API endpoints                     ║
+# ║  - uvicorn: ASGI server to run and reload the FastAPI application          ║
+# ║  - httpx: Asynchronous HTTP client for OpenRouter API requests             ║
+# ║  - python-dotenv: Loads environment variables from the .env file          ║
+# ║  - pydantic: Enforces request payload validation and data modeling         ║
+# ║  - pyyaml: Parses settings.yaml configuration                              ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+fastapi==0.115.12
+uvicorn[standard]==0.34.2
+httpx==0.28.1
+python-dotenv==1.1.0
+pydantic==2.11.3
+pyyaml>=6.0
